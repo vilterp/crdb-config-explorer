@@ -27,6 +27,7 @@
 
 .config-view .schema-node {
   border-right: 1px solid black;
+  padding-right: 5px;
 }
 
 .config-view .cell {
