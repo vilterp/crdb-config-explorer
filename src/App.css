@@ -1,33 +1,21 @@
-.App {
+.config-view {
+  border-collapse: collapse;
+}
+
+.config-view th.formation-node {
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+.config-view .formation-level-label {
+  text-align: right;
+  font-style: italic;
+  font-weight: normal;
+  padding-right: 5px;
+}
+
+.config-view .cell {
   text-align: center;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

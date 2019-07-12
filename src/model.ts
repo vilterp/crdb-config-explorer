@@ -28,18 +28,18 @@ export interface Node {
 
 export interface Table {
   indexes: Index[];
-  zoneConfig: ZoneConfig;
+  zoneConfig: ZoneConfig | null;
 }
 
 export interface Index {
   name: string;
   partitions: Partition[];
-  zoneConfig: ZoneConfig;
+  zoneConfig: ZoneConfig | null;
 }
 
 export interface Partition {
   name: string;
-  zoneConfig: ZoneConfig;
+  zoneConfig: ZoneConfig | null;
 }
 
 interface ZoneConfig {
@@ -55,4 +55,40 @@ interface Hop {
   toLoc: string;
   start: number;
   end: number;
+}
+
+// helper funcs
+
+export function nodesInRegion(reg: Region): number {
+  return reg.azs.reduce((sum, az) => sum + nodesInAZ(az), 0);
+}
+
+export function nodesInAZ(az: AZ): number {
+  return az.nodes.length;
+}
+
+interface NodePath {
+  regionName: string;
+  azName: string;
+  nodeID: number;
+}
+
+export function nodePathsForFormation(formation: Formation): NodePath[] {
+  return formation.regions.flatMap(nodePathsForRegion);
+}
+
+function nodePathsForRegion(region: Region): NodePath[] {
+  return region.azs.flatMap(az => nodePathsForAZ(region.name, az));
+}
+
+function nodePathsForAZ(regionName: string, az: AZ): NodePath[] {
+  return az.nodes.map(node => ({
+    regionName,
+    azName: az.name,
+    nodeID: node.id
+  }));
+}
+
+export function nodePathToStr(np: NodePath): string {
+  return `${np.regionName}/${np.azName}/${np.azName}`;
 }
