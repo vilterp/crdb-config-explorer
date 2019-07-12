@@ -4,7 +4,7 @@ export interface Situation {
 }
 
 export interface Configuration {
-  schema: Table;
+  table: Table;
   formation: Formation;
 }
 
@@ -27,6 +27,7 @@ export interface Node {
 }
 
 export interface Table {
+  name: string;
   indexes: Index[];
   zoneConfig: ZoneConfig | null;
 }
@@ -59,6 +60,10 @@ interface Hop {
 
 // helper funcs
 
+export function nodesInFormation(f: Formation): number {
+  return f.regions.reduce((sum, region) => sum + nodesInRegion(region), 0);
+}
+
 export function nodesInRegion(reg: Region): number {
   return reg.azs.reduce((sum, az) => sum + nodesInAZ(az), 0);
 }
@@ -67,10 +72,15 @@ export function nodesInAZ(az: AZ): number {
   return az.nodes.length;
 }
 
-interface NodePath {
+export interface NodePath {
   regionName: string;
   azName: string;
   nodeID: number;
+}
+
+export interface SchemaPath {
+  indexName: string;
+  partitionName: string;
 }
 
 export function nodePathsForFormation(formation: Formation): NodePath[] {

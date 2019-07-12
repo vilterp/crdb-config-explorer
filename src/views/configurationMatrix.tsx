@@ -4,8 +4,10 @@ import {
   nodePathsForFormation,
   nodePathToStr,
   nodesInAZ,
+  nodesInFormation,
   nodesInRegion
 } from "../model";
+import { allocate, Allocation } from "../simulate";
 
 export function ConfigurationView(props: { config: Configuration }) {
   return (
@@ -55,14 +57,46 @@ export function ConfigurationView(props: { config: Configuration }) {
       </thead>
       <tbody>
         <tr>
-          <td>Table</td>
-          {nodePathsForFormation(props.config.formation).map(path => (
-            <td key={nodePathToStr(path)} className="cell">
-              X
-            </td>
-          ))}
+          <td>Table "{props.config.table.name}"</td>
+          <td colSpan={nodesInFormation(props.config.formation)} />
         </tr>
+        {props.config.table.indexes.map(index => (
+          <React.Fragment key={index.name}>
+            <tr key={index.name}>
+              <td style={schemaNodeStyle(1)}>Index "{index.name}"</td>
+              <td colSpan={nodesInFormation(props.config.formation)} />
+            </tr>
+            {index.partitions.map(partition => (
+              <tr key={`${index.name}/${partition.name}`}>
+                <td style={schemaNodeStyle(2)}>Partition "{partition.name}"</td>
+                {nodePathsForFormation(props.config.formation).map(nodePath => (
+                  <td key={nodePathToStr(nodePath)} className="cell">
+                    {renderAllocation(
+                      allocate(nodePath, {
+                        indexName: index.name,
+                        partitionName: partition.name
+                      })
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </React.Fragment>
+        ))}
       </tbody>
     </table>
   );
+}
+
+function renderAllocation(allocation: Allocation): React.ReactNode {
+  switch (allocation.type) {
+    case "Data":
+      return "x";
+    case "NoData":
+      return null;
+  }
+}
+
+function schemaNodeStyle(depth: number) {
+  return { paddingLeft: depth * 20 };
 }

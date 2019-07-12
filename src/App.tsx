@@ -1,6 +1,6 @@
 import React from "react";
 import { ConfigurationView } from "./views/configurationMatrix";
-import { threeRegions } from "./configurations";
+import { threeRegions, usersTable } from "./configurations";
 import "./App.css";
 
 function App() {
@@ -9,7 +9,7 @@ function App() {
       <ConfigurationView
         config={{
           formation: threeRegions,
-          schema: { indexes: [], zoneConfig: null }
+          table: usersTable
         }}
       />
     </>

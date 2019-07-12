@@ -1,4 +1,6 @@
-import { Formation } from "./model";
+import { Formation, Table } from "./model";
+
+// FORMATIONS
 
 export const singleNode: Formation = {
   regions: [
@@ -46,4 +48,22 @@ export const threeRegions: Formation = {
       ]
     }))
   }))
+};
+
+// TABLES
+
+export const usersTable: Table = {
+  name: "users",
+  indexes: [
+    {
+      name: "primary",
+      partitions: [
+        { name: "west", zoneConfig: null },
+        { name: "central", zoneConfig: null },
+        { name: "east", zoneConfig: null }
+      ],
+      zoneConfig: null
+    }
+  ],
+  zoneConfig: null
 };
