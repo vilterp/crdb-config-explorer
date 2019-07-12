@@ -1,4 +1,4 @@
-import { NodePath, SchemaPath } from "./model";
+import { NodePath, SchemaPath, ZoneConfig } from "./model";
 
 // TODO: leaseholders pinned
 export type Allocation = { type: "NoData" } | { type: "Data" };
@@ -8,5 +8,21 @@ export function allocate(
   schemaPath: SchemaPath
 ): Allocation {
   // TODO: actual logic
-  return { type: "Data" };
+  const zoneConfig = getZoneConfig(schemaPath);
+  if (zoneConfig === null) {
+    return { type: "Data" };
+  }
+  if (zoneConfig.dataRegion === nodePath.regionName) {
+    return { type: "Data" };
+  } else {
+    return { type: "NoData" };
+  }
+}
+
+function getZoneConfig(schemaPath: SchemaPath): ZoneConfig | null {
+  if (schemaPath.partition.zoneConfig) {
+    return schemaPath.partition.zoneConfig;
+  } else {
+    return schemaPath.index.zoneConfig;
+  }
 }

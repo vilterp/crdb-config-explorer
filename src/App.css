@@ -16,6 +16,6 @@
   padding-right: 5px;
 }
 
-.config-view .cell {
-  text-align: center;
+.cell.cell-data {
+  background-color: lightgreen;
 }

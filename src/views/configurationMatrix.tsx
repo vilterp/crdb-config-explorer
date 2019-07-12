@@ -69,16 +69,15 @@ export function ConfigurationView(props: { config: Configuration }) {
             {index.partitions.map(partition => (
               <tr key={`${index.name}/${partition.name}`}>
                 <td style={schemaNodeStyle(2)}>Partition "{partition.name}"</td>
-                {nodePathsForFormation(props.config.formation).map(nodePath => (
-                  <td key={nodePathToStr(nodePath)} className="cell">
-                    {renderAllocation(
-                      allocate(nodePath, {
-                        indexName: index.name,
-                        partitionName: partition.name
-                      })
-                    )}
-                  </td>
-                ))}
+                {nodePathsForFormation(props.config.formation).map(nodePath =>
+                  renderCell(
+                    nodePathToStr(nodePath),
+                    allocate(nodePath, {
+                      index: index,
+                      partition: partition
+                    })
+                  )
+                )}
               </tr>
             ))}
           </React.Fragment>
@@ -88,12 +87,12 @@ export function ConfigurationView(props: { config: Configuration }) {
   );
 }
 
-function renderAllocation(allocation: Allocation): React.ReactNode {
+function renderCell(key: string, allocation: Allocation): React.ReactNode {
   switch (allocation.type) {
     case "Data":
-      return "x";
+      return <td key={key} className="cell cell-data" />;
     case "NoData":
-      return null;
+      return <td key={key} className="cell cell-no-data" />;
   }
 }
 

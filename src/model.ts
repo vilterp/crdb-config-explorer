@@ -43,8 +43,9 @@ export interface Partition {
   zoneConfig: ZoneConfig | null;
 }
 
-interface ZoneConfig {
-  // ...
+export interface ZoneConfig {
+  leaseholdersRegion: string | null;
+  dataRegion: string | null;
 }
 
 export interface HopSequence {
@@ -79,8 +80,8 @@ export interface NodePath {
 }
 
 export interface SchemaPath {
-  indexName: string;
-  partitionName: string;
+  index: Index;
+  partition: Partition;
 }
 
 export function nodePathsForFormation(formation: Formation): NodePath[] {

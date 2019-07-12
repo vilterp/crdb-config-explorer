@@ -37,7 +37,7 @@ export const singleRegion: Formation = {
 };
 
 export const threeRegions: Formation = {
-  regions: ["us-east", "us-west", "us-central"].map((regName, regIdx) => ({
+  regions: ["us-west", "us-central", "us-east"].map((regName, regIdx) => ({
     name: regName,
     azs: ["a", "b", "c"].map((azName, azIdx) => ({
       name: azName,
@@ -58,9 +58,18 @@ export const usersTable: Table = {
     {
       name: "primary",
       partitions: [
-        { name: "west", zoneConfig: null },
-        { name: "central", zoneConfig: null },
-        { name: "east", zoneConfig: null }
+        {
+          name: "west",
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-west" }
+        },
+        {
+          name: "central",
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-central" }
+        },
+        {
+          name: "east",
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-east" }
+        }
       ],
       zoneConfig: null
     }
