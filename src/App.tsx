@@ -36,6 +36,13 @@ function App() {
       />
       <h2>Multi-Region Patterns</h2>
       <p>These patterns involve a cluster with servers in multiple regions.</p>
+      <h3>Naive Multiregion</h3>
+      <ConfigurationView
+        config={{
+          formation: threeNodesThreeRegions,
+          table: usersTableUnPartitioned
+        }}
+      />
       <h3>Geo-partitioned replicas</h3>
       <ConfigurationView
         config={{
