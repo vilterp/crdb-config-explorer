@@ -104,3 +104,11 @@ function nodePathsForAZ(regionName: string, az: AZ): NodePath[] {
 export function nodePathToStr(np: NodePath): string {
   return `${np.regionName}/${np.azName}/${np.azName}`;
 }
+
+export function partitionsInTable(table: Table): number {
+  return table.indexes.reduce((sum, idx) => sum + partitionsInIndex(idx), 0);
+}
+
+export function partitionsInIndex(index: Index): number {
+  return index.partitions.length;
+}

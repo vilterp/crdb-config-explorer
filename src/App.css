@@ -18,7 +18,13 @@
   text-align: right;
   font-style: italic;
   font-weight: normal;
+  padding-left: 5px;
+}
+
+.config-view .schema-level-label {
   padding-right: 5px;
+  font-style: italic;
+  text-align: center;
 }
 
 .config-view .cell.cell-data {
@@ -36,6 +42,6 @@
   border-bottom: 1px solid lightgrey;
 }
 
-.config-view tr {
-  border-right: 1px solid black;
-}
+/*.config-view tr {*/
+/*  border-right: 1px solid black;*/
+/*}*/

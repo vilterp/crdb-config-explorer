@@ -7,16 +7,28 @@ import {
   nodesInAZ,
   nodesInFormation,
   nodesInRegion,
+  partitionsInIndex,
+  partitionsInTable,
   SchemaPath
 } from "../model";
 import { allocate, Allocation } from "../allocate";
 
 export function ConfigurationView(props: { config: Configuration }) {
+  const table = props.config.table;
+
   return (
     <table className="config-view">
       <thead>
         <tr>
+          <td />
+          <td className="schema-level-label">Table</td>
+          <td className="schema-level-label">Index</td>
+          <td className="schema-level-label">Partition</td>
+          <td colSpan={nodesInFormation(props.config.formation)} />
+        </tr>
+        <tr>
           <th className="formation-level-label">Region</th>
+          <th colSpan={3} />
           {/* regions */}
           {props.config.formation.regions.map(region => (
             <th
@@ -30,6 +42,7 @@ export function ConfigurationView(props: { config: Configuration }) {
         </tr>
         <tr>
           <th className="formation-level-label">AZ</th>
+          <th colSpan={3} />
           {/* az's */}
           {props.config.formation.regions.map(region =>
             region.azs.map(az => (
@@ -45,6 +58,7 @@ export function ConfigurationView(props: { config: Configuration }) {
         </tr>
         <tr>
           <th className="formation-level-label">Node</th>
+          <td colSpan={3} />
           {/* nodes */}
           {props.config.formation.regions.map(region =>
             region.azs.map(az =>
@@ -58,37 +72,27 @@ export function ConfigurationView(props: { config: Configuration }) {
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td className="schema-node">Table "{props.config.table.name}"</td>
-          <td colSpan={nodesInFormation(props.config.formation)} />
-        </tr>
-        {props.config.table.indexes.map(index => (
-          <React.Fragment key={index.name}>
-            <tr key={index.name}>
-              <td style={schemaNodeStyle(1)} className="schema-node">
-                Index "{index.name}"
-              </td>
-              <td colSpan={nodesInFormation(props.config.formation)} />
+        {table.indexes.map((index, indexIdx) =>
+          index.partitions.map((partition, partitionIdx) => (
+            <tr key={`${index.name}/${partition.name}`}>
+              <td />
+              {indexIdx === 0 && partitionIdx === 0 ? (
+                <td rowSpan={partitionsInTable(table)}>{table.name}</td>
+              ) : null}
+              {partitionIdx === 0 ? (
+                <td rowSpan={partitionsInIndex(index)}>{index.name}</td>
+              ) : null}
+              <td>{partition.name}</td>
+              {nodePathsForFormation(props.config.formation).map(nodePath =>
+                renderCell(nodePath, {
+                  table: props.config.table,
+                  index: index,
+                  partition: partition
+                })
+              )}
             </tr>
-            {index.partitions.map(partition => (
-              <tr key={`${index.name}/${partition.name}`}>
-                <td
-                  style={schemaNodeStyle(2)}
-                  className="schema-node partition-node"
-                >
-                  Partition "{partition.name}"
-                </td>
-                {nodePathsForFormation(props.config.formation).map(nodePath =>
-                  renderCell(nodePath, {
-                    table: props.config.table,
-                    index: index,
-                    partition: partition
-                  })
-                )}
-              </tr>
-            ))}
-          </React.Fragment>
-        ))}
+          ))
+        )}
       </tbody>
     </table>
   );
@@ -108,10 +112,6 @@ function renderCell(
       {allocation.type === "Data" && allocation.pinnedLeaseholders ? "LH" : ""}
     </td>
   );
-}
-
-function schemaNodeStyle(depth: number) {
-  return { paddingLeft: depth * 20 };
 }
 
 function cellExplanation(
