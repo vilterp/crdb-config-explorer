@@ -32,12 +32,22 @@
 }
 
 .config-view .schema-node {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  border-right: 1px solid lightgrey;
+  font-weight: bold;
+}
+
+.config-view .schema-node.schema-node-leaf {
   border-right: 1px solid black;
-  padding-right: 5px;
+}
+
+.config-view .formation-node.formation-node-leaf {
+  border-bottom: 1px solid black;
 }
 
 .config-view .cell {
-  border-left: 1px solid lightgrey;
+  border-right: 1px solid lightgrey;
   border-top: 1px solid lightgrey;
   border-bottom: 1px solid lightgrey;
 }

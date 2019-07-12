@@ -63,7 +63,10 @@ export function ConfigurationView(props: { config: Configuration }) {
           {props.config.formation.regions.map(region =>
             region.azs.map(az =>
               az.nodes.map(node => (
-                <th key={node.id} className="formation-node">
+                <th
+                  key={node.id}
+                  className="formation-node formation-node-leaf"
+                >
                   n{node.id}
                 </th>
               ))
@@ -77,12 +80,16 @@ export function ConfigurationView(props: { config: Configuration }) {
             <tr key={`${index.name}/${partition.name}`}>
               <td />
               {indexIdx === 0 && partitionIdx === 0 ? (
-                <td rowSpan={partitionsInTable(table)}>{table.name}</td>
+                <td className="schema-node" rowSpan={partitionsInTable(table)}>
+                  {table.name}
+                </td>
               ) : null}
               {partitionIdx === 0 ? (
-                <td rowSpan={partitionsInIndex(index)}>{index.name}</td>
+                <td className="schema-node" rowSpan={partitionsInIndex(index)}>
+                  {index.name}
+                </td>
               ) : null}
-              <td>{partition.name}</td>
+              <td className="schema-node schema-node-leaf">{partition.name}</td>
               {nodePathsForFormation(props.config.formation).map(nodePath =>
                 renderCell(nodePath, {
                   table: props.config.table,
