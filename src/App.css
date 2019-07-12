@@ -1,3 +1,7 @@
+.container {
+  margin-left: 50px;
+}
+
 .config-view {
   border-collapse: collapse;
 }

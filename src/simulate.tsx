@@ -9,7 +9,7 @@ export function allocate(
 ): Allocation {
   // TODO: actual logic
   const zoneConfig = getZoneConfig(schemaPath);
-  if (zoneConfig === null) {
+  if (zoneConfig === undefined) {
     return { type: "Data" };
   }
   if (zoneConfig.dataRegion === nodePath.regionName) {
@@ -19,7 +19,7 @@ export function allocate(
   }
 }
 
-function getZoneConfig(schemaPath: SchemaPath): ZoneConfig | null {
+function getZoneConfig(schemaPath: SchemaPath): ZoneConfig | undefined {
   if (schemaPath.partition.zoneConfig) {
     return schemaPath.partition.zoneConfig;
   } else {

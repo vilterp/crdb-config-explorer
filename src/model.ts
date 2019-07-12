@@ -29,18 +29,18 @@ export interface Node {
 export interface Table {
   name: string;
   indexes: Index[];
-  zoneConfig: ZoneConfig | null;
+  zoneConfig?: ZoneConfig;
 }
 
 export interface Index {
   name: string;
   partitions: Partition[];
-  zoneConfig: ZoneConfig | null;
+  zoneConfig?: ZoneConfig;
 }
 
 export interface Partition {
   name: string;
-  zoneConfig: ZoneConfig | null;
+  zoneConfig?: ZoneConfig;
 }
 
 export interface ZoneConfig {

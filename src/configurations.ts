@@ -5,10 +5,10 @@ import { Formation, Table } from "./model";
 export const singleNode: Formation = {
   regions: [
     {
-      name: "us-east",
+      name: "laptop",
       azs: [
         {
-          name: "a",
+          name: "N/A",
           nodes: [
             {
               id: 1
@@ -20,7 +20,7 @@ export const singleNode: Formation = {
   ]
 };
 
-export const singleRegion: Formation = {
+export const threeNodesOneRegion: Formation = {
   regions: [
     {
       name: "us-east",
@@ -36,7 +36,7 @@ export const singleRegion: Formation = {
   ]
 };
 
-export const threeRegions: Formation = {
+export const threeNodesThreeRegions: Formation = {
   regions: ["us-west", "us-central", "us-east"].map((regName, regIdx) => ({
     name: regName,
     azs: ["a", "b", "c"].map((azName, azIdx) => ({
@@ -52,7 +52,17 @@ export const threeRegions: Formation = {
 
 // TABLES
 
-export const usersTable: Table = {
+export const usersTableUnPartitioned: Table = {
+  name: "users",
+  indexes: [
+    {
+      name: "primary",
+      partitions: [{ name: "default" }]
+    }
+  ]
+};
+
+export const usersTablePartitioned: Table = {
   name: "users",
   indexes: [
     {
@@ -70,9 +80,7 @@ export const usersTable: Table = {
           name: "east",
           zoneConfig: { leaseholdersRegion: null, dataRegion: "us-east" }
         }
-      ],
-      zoneConfig: null
+      ]
     }
-  ],
-  zoneConfig: null
+  ]
 };
