@@ -4,6 +4,7 @@ import {
   singleNode,
   threeNodesOneRegion,
   threeNodesThreeRegions,
+  usersTableDupIndexes,
   usersTableLeaseholderPartitioned,
   usersTablePartitioned,
   usersTableUnPartitioned
@@ -47,6 +48,13 @@ function App() {
         config={{
           formation: threeNodesThreeRegions,
           table: usersTableLeaseholderPartitioned
+        }}
+      />
+      <h3>Duplicate Indexes</h3>
+      <ConfigurationView
+        config={{
+          formation: threeNodesThreeRegions,
+          table: usersTableDupIndexes
         }}
       />
     </div>

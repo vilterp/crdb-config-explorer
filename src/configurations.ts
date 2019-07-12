@@ -107,3 +107,12 @@ export const usersTableLeaseholderPartitioned: Table = {
     }
   ]
 };
+
+export const usersTableDupIndexes: Table = {
+  name: "postal_codes",
+  indexes: ["us-west", "us-central", "us-east"].map(region => ({
+    name: region,
+    zoneConfig: { dataRegion: null, leaseholdersRegion: region },
+    partitions: [{ name: "default" }]
+  }))
+};
