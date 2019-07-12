@@ -1,5 +1,6 @@
 .container {
   margin-left: 50px;
+  padding-bottom: 50px;
 }
 
 .config-view {
@@ -20,6 +21,20 @@
   padding-right: 5px;
 }
 
-.cell.cell-data {
+.config-view .cell.cell-data {
   background-color: lightgreen;
+}
+
+.config-view .schema-node {
+  border-right: 1px solid black;
+}
+
+.config-view .cell {
+  border-left: 1px solid lightgrey;
+  border-top: 1px solid lightgrey;
+  border-bottom: 1px solid lightgrey;
+}
+
+.config-view tr {
+  border-right: 1px solid black;
 }

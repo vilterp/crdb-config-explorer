@@ -1,11 +1,13 @@
 import * as React from "react";
 import {
   Configuration,
+  NodePath,
   nodePathsForFormation,
   nodePathToStr,
   nodesInAZ,
   nodesInFormation,
-  nodesInRegion
+  nodesInRegion,
+  SchemaPath
 } from "../model";
 import { allocate, Allocation } from "../simulate";
 
@@ -57,26 +59,31 @@ export function ConfigurationView(props: { config: Configuration }) {
       </thead>
       <tbody>
         <tr>
-          <td>Table "{props.config.table.name}"</td>
+          <td className="schema-node">Table "{props.config.table.name}"</td>
           <td colSpan={nodesInFormation(props.config.formation)} />
         </tr>
         {props.config.table.indexes.map(index => (
           <React.Fragment key={index.name}>
             <tr key={index.name}>
-              <td style={schemaNodeStyle(1)}>Index "{index.name}"</td>
+              <td style={schemaNodeStyle(1)} className="schema-node">
+                Index "{index.name}"
+              </td>
               <td colSpan={nodesInFormation(props.config.formation)} />
             </tr>
             {index.partitions.map(partition => (
               <tr key={`${index.name}/${partition.name}`}>
-                <td style={schemaNodeStyle(2)}>Partition "{partition.name}"</td>
+                <td
+                  style={schemaNodeStyle(2)}
+                  className="schema-node partition-node"
+                >
+                  Partition "{partition.name}"
+                </td>
                 {nodePathsForFormation(props.config.formation).map(nodePath =>
-                  renderCell(
-                    nodePathToStr(nodePath),
-                    allocate(nodePath, {
-                      index: index,
-                      partition: partition
-                    })
-                  )
+                  renderCell(nodePath, {
+                    table: props.config.table,
+                    index: index,
+                    partition: partition
+                  })
                 )}
               </tr>
             ))}
@@ -87,15 +94,27 @@ export function ConfigurationView(props: { config: Configuration }) {
   );
 }
 
-function renderCell(key: string, allocation: Allocation): React.ReactNode {
-  switch (allocation.type) {
-    case "Data":
-      return <td key={key} className="cell cell-data" />;
-    case "NoData":
-      return <td key={key} className="cell cell-no-data" />;
-  }
+function renderCell(
+  nodePath: NodePath,
+  schemaPath: SchemaPath
+): React.ReactNode {
+  const key = nodePathToStr(nodePath);
+  const allocation = allocate(nodePath, schemaPath);
+  const explanation = cellExplanation(schemaPath, nodePath, allocation);
+  const className =
+    allocation.type === "Data" ? "cell cell-data" : "cell cell-no-data";
+  return <td key={key} title={explanation} className={className} />;
 }
 
 function schemaNodeStyle(depth: number) {
   return { paddingLeft: depth * 20 };
+}
+
+function cellExplanation(
+  schemaPath: SchemaPath,
+  nodePath: NodePath,
+  all: Allocation
+) {
+  const presence = all.type === "Data" ? "present" : "not present";
+  return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" is ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}`;
 }

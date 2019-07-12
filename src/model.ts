@@ -80,6 +80,7 @@ export interface NodePath {
 }
 
 export interface SchemaPath {
+  table: Table;
   index: Index;
   partition: Partition;
 }
