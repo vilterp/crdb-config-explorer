@@ -53,8 +53,8 @@ export interface HopSequence {
 }
 
 interface Hop {
-  fromLoc: string;
-  toLoc: string;
+  from: NodePath;
+  to: NodePath;
   start: number;
   end: number;
 }
@@ -111,4 +111,49 @@ export function partitionsInTable(table: Table): number {
 
 export function partitionsInIndex(index: Index): number {
   return index.partitions.length;
+}
+
+export type RegionName = string;
+
+export function schemaPathForKVWrite(
+  table: Table,
+  kvWrite: KVWrite
+): SchemaPath {
+  const index = table.indexes.find(i => i.name === kvWrite.indexName);
+  if (!index) {
+    throw new Error("index not found"); // bah
+  }
+  const partition = index.partitions.find(
+    p => p.name === kvWrite.partitionName
+  );
+  if (!partition) {
+    throw new Error(
+      `partition ${kvWrite.partitionName} not found in ${index.partitions
+        .map(p => p.name)
+        .join(", ")}`
+    );
+  }
+  return {
+    table,
+    index,
+    partition
+  };
+}
+
+export function nodeForID(f: Formation, nodeID: number): NodePath | undefined {
+  return nodePathsForFormation(f).find(np => np.nodeID === nodeID);
+}
+
+// Writes
+
+export interface SQLWrite {
+  gateWayNodeID: number;
+  tableName: string;
+  partitionName: string;
+}
+
+export interface KVWrite {
+  tableName: string;
+  indexName: string;
+  partitionName: string;
 }

@@ -10,6 +10,7 @@ import {
   usersTableUnPartitioned
 } from "./configurations";
 import "./App.css";
+import { SituationView } from "./views/situationView";
 
 function App() {
   return (
@@ -44,10 +45,15 @@ function App() {
         }}
       />
       <h3>Geo-partitioned replicas</h3>
-      <ConfigurationView
+      <SituationView
         config={{
           formation: threeNodesThreeRegions,
           table: usersTablePartitioned
+        }}
+        write={{
+          gateWayNodeID: 1,
+          tableName: "users",
+          partitionName: "east"
         }}
       />
       <h3>Geo-partitioned leaseholders</h3>
