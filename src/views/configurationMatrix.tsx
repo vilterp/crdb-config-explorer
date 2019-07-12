@@ -9,7 +9,7 @@ import {
   nodesInRegion,
   SchemaPath
 } from "../model";
-import { allocate, Allocation } from "../simulate";
+import { allocate, Allocation } from "../allocate";
 
 export function ConfigurationView(props: { config: Configuration }) {
   return (
@@ -103,7 +103,11 @@ function renderCell(
   const explanation = cellExplanation(schemaPath, nodePath, allocation);
   const className =
     allocation.type === "Data" ? "cell cell-data" : "cell cell-no-data";
-  return <td key={key} title={explanation} className={className} />;
+  return (
+    <td key={key} title={explanation} className={className}>
+      {allocation.type === "Data" && allocation.pinnedLeaseholders ? "LH" : ""}
+    </td>
+  );
 }
 
 function schemaNodeStyle(depth: number) {
@@ -116,5 +120,9 @@ function cellExplanation(
   all: Allocation
 ) {
   const presence = all.type === "Data" ? "present" : "not present";
-  return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" is ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}`;
+  const leaseholdersPinned =
+    all.type === "Data" && all.pinnedLeaseholders
+      ? "Leaseholders have been pinned to this region."
+      : "";
+  return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" is ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}. ${leaseholdersPinned}`;
 }

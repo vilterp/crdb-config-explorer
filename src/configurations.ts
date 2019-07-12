@@ -84,3 +84,26 @@ export const usersTablePartitioned: Table = {
     }
   ]
 };
+
+export const usersTableLeaseholderPartitioned: Table = {
+  name: "users",
+  indexes: [
+    {
+      name: "primary",
+      partitions: [
+        {
+          name: "west",
+          zoneConfig: { leaseholdersRegion: "us-west", dataRegion: null }
+        },
+        {
+          name: "central",
+          zoneConfig: { leaseholdersRegion: "us-central", dataRegion: null }
+        },
+        {
+          name: "east",
+          zoneConfig: { leaseholdersRegion: "us-east", dataRegion: null }
+        }
+      ]
+    }
+  ]
+};

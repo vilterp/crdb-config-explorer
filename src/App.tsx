@@ -4,6 +4,7 @@ import {
   singleNode,
   threeNodesOneRegion,
   threeNodesThreeRegions,
+  usersTableLeaseholderPartitioned,
   usersTablePartitioned,
   usersTableUnPartitioned
 } from "./configurations";
@@ -33,11 +34,19 @@ function App() {
         }}
       />
       <h2>Multi-Region Patterns</h2>
-      <h3>Three Nodes x Three Regions; Geo-partitioning</h3>
+      <p>These patterns involve a cluster with servers in multiple regions.</p>
+      <h3>Geo-partitioned replicas</h3>
       <ConfigurationView
         config={{
           formation: threeNodesThreeRegions,
           table: usersTablePartitioned
+        }}
+      />
+      <h3>Geo-partitioned leaseholders</h3>
+      <ConfigurationView
+        config={{
+          formation: threeNodesThreeRegions,
+          table: usersTableLeaseholderPartitioned
         }}
       />
     </div>
