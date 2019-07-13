@@ -6,18 +6,25 @@ import { HopSequenceView } from "./hopSequence";
 
 export function SituationView(props: {
   config: Configuration;
-  write: SQLWrite;
+  writes: { write: SQLWrite; desc: React.ReactNode }[];
 }) {
-  const hopSequence = hopSequenceForSQLWrite(props.config, props.write);
   return (
     <>
       <ConfigurationView config={props.config} />
-      <h4>Simulated Write</h4>
-      <WriteDesc write={props.write} />
-      <HopSequenceView
-        formation={props.config.formation}
-        sequence={hopSequence}
-      />
+      <h4>Simulated Writes</h4>
+      {props.writes.map(write => {
+        const hopSequence = hopSequenceForSQLWrite(props.config, write.write);
+        return (
+          <>
+            <h5>{write.desc}</h5>
+            <WriteDesc write={write.write} />
+            <HopSequenceView
+              formation={props.config.formation}
+              sequence={hopSequence}
+            />
+          </>
+        );
+      })}
     </>
   );
 }
