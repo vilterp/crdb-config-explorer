@@ -12,17 +12,17 @@ export function SituationView(props: {
     <>
       <ConfigurationView config={props.config} />
       <h4>Simulated Writes</h4>
-      {props.writes.map(write => {
+      {props.writes.map((write, idx) => {
         const hopSequence = hopSequenceForSQLWrite(props.config, write.write);
         return (
-          <>
+          <div key={idx}>
             <h5>{write.desc}</h5>
             <WriteDesc write={write.write} />
             <HopSequenceView
               formation={props.config.formation}
               sequence={hopSequence}
             />
-          </>
+          </div>
         );
       })}
     </>
