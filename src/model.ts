@@ -52,7 +52,7 @@ export interface HopSequence {
   hops: Hop[];
 }
 
-interface Hop {
+export interface Hop {
   from: NodePath;
   to: NodePath;
   start: number;

@@ -52,6 +52,16 @@
   border-bottom: 1px solid lightgrey;
 }
 
-/*.config-view tr {*/
-/*  border-right: 1px solid black;*/
-/*}*/
+/* hop sequence */
+
+.hop-seq .node-label {
+  fill: black;
+}
+
+.hop-seq .node-line {
+  stroke: black;
+}
+
+.hop-seq .hop-line {
+  stroke: black;
+}

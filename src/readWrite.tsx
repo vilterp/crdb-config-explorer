@@ -20,19 +20,28 @@ export function hopSequenceForSQLWrite(
   // TODO: don't hardcode primary partition... hmmm
   const kvWrites = kvWritesForSQLWrite(config.table, sqlWrite);
   return {
-    hops: kvWrites.map(kvWrite => {
+    hops: kvWrites.flatMap(kvWrite => {
       const fromNode = nodeForID(config.formation, sqlWrite.gateWayNodeID);
       if (!fromNode) {
         throw new Error("couldn't find gateway node");
       }
       const toNodes = possibleNodesForKVWrite(config, kvWrite);
       const toNode = toNodes[0];
-      return {
-        from: fromNode,
-        to: toNode,
-        start: 0,
-        end: latency(fromNode, toNode)
-      };
+      const hopLatency = latency(fromNode, toNode);
+      return [
+        {
+          from: fromNode,
+          to: toNode,
+          start: 0,
+          end: hopLatency
+        },
+        {
+          from: toNode,
+          to: fromNode,
+          start: hopLatency + 1,
+          end: hopLatency * 2 + 1
+        }
+      ];
     })
   };
 }

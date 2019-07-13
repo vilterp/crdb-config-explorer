@@ -9,3 +9,7 @@ export function filterMap<A, B>(arr: A[], f: (t: A) => B | null): B[] {
   });
   return out;
 }
+
+export function max(arr: number[]): number {
+  return arr.reduce((currMax, i) => Math.max(currMax, i), 0);
+}
