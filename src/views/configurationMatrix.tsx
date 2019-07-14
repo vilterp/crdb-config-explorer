@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  allNodesDown,
   Configuration,
   getAZStatus,
   getRegionStatus,
@@ -17,9 +16,9 @@ import {
   partitionsInTable,
   SchemaPath,
 } from "../model";
-import { allocate, Allocation, replicasForSchemaPath } from "../allocate";
+import { allocate, Allocation } from "../allocate";
 import classNames from "classnames";
-import { removeAt } from "../arrays";
+import { removeAt, union, without } from "../arrays";
 
 export function ConfigurationView(props: {
   config: Configuration;
@@ -49,6 +48,14 @@ export function ConfigurationView(props: {
                 key={region.name}
                 colSpan={numNodesInRegion(region)}
                 className={classNameForFormationNode(status)}
+                onClick={() => {
+                  toggleFormationNodeDown(
+                    status,
+                    props.downNodeIDs,
+                    nodesInRegion(region).map(n => n.id),
+                    props.setDownNodeIDs,
+                  );
+                }}
               >
                 {region.name}
               </th>
@@ -67,6 +74,14 @@ export function ConfigurationView(props: {
                   key={az.name}
                   colSpan={numNodesInAZ(az)}
                   className={classNameForFormationNode(status)}
+                  onClick={() => {
+                    toggleFormationNodeDown(
+                      status,
+                      props.downNodeIDs,
+                      az.nodes.map(n => n.id),
+                      props.setDownNodeIDs,
+                    );
+                  }}
                 >
                   {az.name}
                 </th>
@@ -84,7 +99,11 @@ export function ConfigurationView(props: {
                 <th
                   key={node.id}
                   onClick={() =>
-                    toggleDown(props.downNodeIDs, node.id, props.setDownNodeIDs)
+                    toggleNodeDown(
+                      props.downNodeIDs,
+                      node.id,
+                      props.setDownNodeIDs,
+                    )
                   }
                   className={classNames(
                     "formation-node",
@@ -204,13 +223,26 @@ function cellExplanation(
   return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}. ${leaseholdersPinned}`;
 }
 
-function toggleDown(
+function toggleNodeDown(
   ids: number[],
   id: number,
   setIDs: (newIDs: number[]) => void,
 ) {
   const newIDs = toggleDownList(ids, id);
   setIDs(newIDs);
+}
+
+export function toggleFormationNodeDown(
+  status: LocalityStatus,
+  downNodeIDs: number[],
+  nodesHere: number[],
+  setDownNodeIDs: (newIDs: number[]) => void,
+) {
+  if (status === "OK") {
+    setDownNodeIDs(union(downNodeIDs, nodesHere));
+  } else {
+    setDownNodeIDs(without(downNodeIDs, nodesHere));
+  }
 }
 
 function toggleDownList(ids: number[], id: number): number[] {

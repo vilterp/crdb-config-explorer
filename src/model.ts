@@ -153,10 +153,6 @@ export function nodeForID(f: Formation, nodeID: number): NodePath | undefined {
   return nodePathsForFormation(f).find(np => np.nodeID === nodeID);
 }
 
-export function allNodesDown(nodes: Node[], downNodeIDs: number[]): boolean {
-  return nodes.every(n => downNodeIDs.indexOf(n.id) !== -1);
-}
-
 // Writes
 
 export interface SQLWrite {

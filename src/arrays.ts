@@ -38,3 +38,28 @@ export function intersection<T>(as: T[], bs: T[]): T[] {
   });
   return int;
 }
+
+export function union<T>(as: T[], bs: T[]): T[] {
+  const out: T[] = [];
+  as.forEach(a => {
+    out.push(a);
+  });
+  bs.forEach(b => {
+    if (as.indexOf(b) !== -1) {
+      return;
+    }
+    out.push(b);
+  });
+  return out;
+}
+
+export function without<T>(as: T[], without: T[]): T[] {
+  const out: T[] = [];
+  as.forEach(a => {
+    if (without.indexOf(a) !== -1) {
+      return;
+    }
+    out.push(a);
+  });
+  return out;
+}

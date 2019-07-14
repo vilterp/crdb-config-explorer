@@ -54,9 +54,13 @@
   background-color: pink;
 }
 
+.config-view .formation-node {
+  cursor: pointer;
+  user-select: none;
+}
+
 .config-view .formation-node.formation-node-leaf {
   border-bottom: 1px solid black;
-  cursor: pointer;
 }
 
 .config-view .formation-node.formation-node-partially-down {
