@@ -73,3 +73,15 @@
 .hop-seq .hop-line {
   stroke: black;
 }
+
+.hop-seq .hop-line.hop-line-hovered {
+  stroke: red;
+}
+
+.hop-seq .hop-desc {
+  cursor: pointer;
+}
+
+.hop-seq .hop-desc.hop-desc-hovered {
+  color: red;
+}

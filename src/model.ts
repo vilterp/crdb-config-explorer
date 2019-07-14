@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface Configuration {
   table: Table;
   formation: Formation;
@@ -53,6 +55,7 @@ export interface Hop {
   to: NodePath;
   start: number;
   end: number;
+  desc: React.ReactNode;
 }
 
 // helper funcs

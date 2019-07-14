@@ -29,6 +29,18 @@ export function hopSequenceForSQLWrite(
       const lhNode = possLHNodes[0];
       const replicaNodes = possLHNodes.slice(1, 3);
       const gateWayToLHLatency = latency(gatewayNode, lhNode);
+      const gatewayToLHHop =
+        gatewayNode.nodeID !== lhNode.nodeID
+          ? [
+              {
+                from: gatewayNode,
+                to: lhNode,
+                start: 0,
+                end: gateWayToLHLatency,
+                desc: "request from gateway node to leaseholder",
+              },
+            ]
+          : [];
       const replHops = replicaNodes.flatMap(replNode => {
         const replHopLatency = latency(lhNode, replNode);
         return [
@@ -37,31 +49,35 @@ export function hopSequenceForSQLWrite(
             to: replNode,
             start: gateWayToLHLatency,
             end: gateWayToLHLatency + replHopLatency,
+            desc: "request to follower to replicate data",
           },
           {
             from: replNode,
             to: lhNode,
             start: gateWayToLHLatency + replHopLatency,
             end: gateWayToLHLatency + replHopLatency * 2,
+            desc: "response from replicating data to follower",
           },
         ];
       });
       const replDone = replDoneTimestamp(lhNode, replHops);
+      const lhToGatewayHop =
+        gatewayNode.nodeID !== lhNode.nodeID
+          ? [
+              {
+                from: lhNode,
+                to: gatewayNode,
+                start: replDone,
+                end: replDone + gateWayToLHLatency,
+                desc: "response from leaseholder to gateway node",
+              },
+            ]
+          : [];
       return [
         // TODO: there might be no hop if gateway node is leaseholder
-        {
-          from: gatewayNode,
-          to: lhNode,
-          start: 0,
-          end: gateWayToLHLatency,
-        },
+        ...gatewayToLHHop,
         ...replHops,
-        {
-          from: lhNode,
-          to: gatewayNode,
-          start: replDone,
-          end: replDone + gateWayToLHLatency,
-        },
+        ...lhToGatewayHop,
       ];
     }),
   };
