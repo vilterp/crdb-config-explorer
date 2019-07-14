@@ -2,6 +2,7 @@ import * as React from "react";
 import {
   allNodesDown,
   Configuration,
+  getReplicationStatus,
   NodePath,
   nodePathsForFormation,
   nodePathToStr,
@@ -13,7 +14,7 @@ import {
   partitionsInTable,
   SchemaPath,
 } from "../model";
-import { allocate, Allocation } from "../allocate";
+import { allocate, Allocation, replicasForSchemaPath } from "../allocate";
 import classNames from "classnames";
 import { removeAt } from "../arrays";
 
@@ -104,33 +105,50 @@ export function ConfigurationView(props: {
       </thead>
       <tbody>
         {table.indexes.map((index, indexIdx) =>
-          index.partitions.map((partition, partitionIdx) => (
-            <tr key={`${index.name}/${partition.name}`}>
-              <td />
-              {indexIdx === 0 && partitionIdx === 0 ? (
-                <td className="schema-node" rowSpan={partitionsInTable(table)}>
-                  {table.name}
+          index.partitions.map((partition, partitionIdx) => {
+            const schemaPath = {
+              table: props.config.table,
+              index: index,
+              partition: partition,
+            };
+            const replStatus = getReplicationStatus(schemaPath, {
+              config: props.config,
+              downNodeIDs: props.downNodeIDs,
+            });
+            return (
+              <tr key={`${index.name}/${partition.name}`}>
+                <td />
+                {indexIdx === 0 && partitionIdx === 0 ? (
+                  <td
+                    className={classNames("schema-node")}
+                    rowSpan={partitionsInTable(table)}
+                  >
+                    {table.name}
+                  </td>
+                ) : null}
+                {partitionIdx === 0 ? (
+                  <td
+                    className={classNames("schema-node")}
+                    rowSpan={partitionsInIndex(index)}
+                  >
+                    {index.name}
+                  </td>
+                ) : null}
+                <td
+                  className={classNames("schema-node", "schema-node-leaf", {
+                    "schema-node-underreplicated":
+                      replStatus === "Underreplicated",
+                    "schema-node-unavailable": replStatus === "Unavailable",
+                  })}
+                >
+                  {partition.name}
                 </td>
-              ) : null}
-              {partitionIdx === 0 ? (
-                <td className="schema-node" rowSpan={partitionsInIndex(index)}>
-                  {index.name}
-                </td>
-              ) : null}
-              <td className="schema-node schema-node-leaf">{partition.name}</td>
-              {nodePathsForFormation(props.config.formation).map(nodePath =>
-                renderCell(
-                  nodePath,
-                  {
-                    table: props.config.table,
-                    index: index,
-                    partition: partition,
-                  },
-                  props.downNodeIDs,
-                ),
-              )}
-            </tr>
-          )),
+                {nodePathsForFormation(props.config.formation).map(nodePath =>
+                  renderCell(nodePath, schemaPath, props.downNodeIDs),
+                )}
+              </tr>
+            );
+          }),
         )}
       </tbody>
     </table>

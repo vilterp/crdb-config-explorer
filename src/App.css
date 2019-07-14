@@ -46,6 +46,14 @@
   border-right: 1px solid black;
 }
 
+.config-view .schema-node.schema-node-underreplicated {
+  background-color: lightyellow;
+}
+
+.config-view .schema-node.schema-node-unavailable {
+  background-color: pink;
+}
+
 .config-view .formation-node.formation-node-leaf {
   border-bottom: 1px solid black;
   cursor: pointer;

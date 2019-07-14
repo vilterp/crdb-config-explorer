@@ -1,4 +1,10 @@
-import { NodePath, SchemaPath, ZoneConfig } from "./model";
+import {
+  NodePath,
+  nodePathsForFormation,
+  SchemaPath,
+  Situation,
+  ZoneConfig,
+} from "./model";
 
 // TODO: leaseholders pinned
 export type Allocation =
@@ -52,4 +58,14 @@ function getZoneConfig(schemaPath: SchemaPath): ZoneConfig | undefined {
   } else {
     return schemaPath.index.zoneConfig;
   }
+}
+
+export function replicasForSchemaPath(
+  schemaPath: SchemaPath,
+  situation: Situation,
+): NodePath[] {
+  return nodePathsForFormation(situation.config.formation).filter(
+    nodePath =>
+      allocate(nodePath, schemaPath, situation.downNodeIDs).type === "Data",
+  );
 }

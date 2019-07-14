@@ -1,4 +1,5 @@
 import React from "react";
+import { replicasForSchemaPath } from "./allocate";
 
 export interface Situation {
   config: Configuration;
@@ -167,4 +168,24 @@ export interface KVWrite {
   tableName: string;
   indexName: string;
   partitionName: string;
+}
+
+// vulnerability
+
+type ReplicationStatus = "OK" | "Underreplicated" | "Unavailable";
+
+export function getReplicationStatus(
+  schemaPath: SchemaPath,
+  situ: Situation,
+): ReplicationStatus {
+  const numReplicas = replicasForSchemaPath(schemaPath, situ).length;
+  const desiredReplicas = 3; // TODO: get from zone config
+  const quorumReplicas = Math.ceil(desiredReplicas / 2);
+  if (numReplicas >= desiredReplicas) {
+    return "OK";
+  }
+  if (numReplicas < quorumReplicas) {
+    return "Unavailable";
+  }
+  return "Underreplicated";
 }
