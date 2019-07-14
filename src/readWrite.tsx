@@ -1,5 +1,4 @@
 import {
-  Configuration,
   Hop,
   HopSequence,
   KVWrite,
@@ -7,6 +6,7 @@ import {
   NodePath,
   nodePathsForFormation,
   schemaPathForKVWrite,
+  Situation,
   SQLWrite,
   Table,
 } from "./model";
@@ -14,18 +14,24 @@ import { allocate } from "./allocate";
 import { filterMap, min } from "./arrays";
 
 export function hopSequenceForSQLWrite(
-  config: Configuration,
+  situation: Situation,
   sqlWrite: SQLWrite,
 ): HopSequence {
   // TODO: don't hardcode primary partition... hmmm
-  const kvWrites = kvWritesForSQLWrite(config.table, sqlWrite);
+  const kvWrites = kvWritesForSQLWrite(situation.config.table, sqlWrite);
   return {
     hops: kvWrites.flatMap(kvWrite => {
-      const gatewayNode = nodeForID(config.formation, sqlWrite.gateWayNodeID);
+      const gatewayNode = nodeForID(
+        situation.config.formation,
+        sqlWrite.gateWayNodeID,
+      );
       if (!gatewayNode) {
         throw new Error("couldn't find gateway node");
       }
-      const possLHNodes = possibleLeaseholderNodesForKVWrite(config, kvWrite);
+      const possLHNodes = possibleLeaseholderNodesForKVWrite(
+        situation,
+        kvWrite,
+      );
       const lhNode = possLHNodes[0];
       const replicaNodes = possLHNodes.slice(1, 3);
       const gateWayToLHLatency = latency(gatewayNode, lhNode);
@@ -107,14 +113,14 @@ function kvWritesForSQLWrite(table: Table, write: SQLWrite): KVWrite[] {
 }
 
 function possibleLeaseholderNodesForKVWrite(
-  config: Configuration,
+  situation: Situation,
   kvWrite: KVWrite,
 ): NodePath[] {
   const possibilities = filterMap(
-    nodePathsForFormation(config.formation),
+    nodePathsForFormation(situation.config.formation),
     nodePath => {
-      const schemaPath = schemaPathForKVWrite(config.table, kvWrite);
-      const allocation = allocate(nodePath, schemaPath, config.downNodeIDs);
+      const schemaPath = schemaPathForKVWrite(situation.config.table, kvWrite);
+      const allocation = allocate(nodePath, schemaPath, situation.downNodeIDs);
       if (allocation.type === "NoData") {
         return null;
       }

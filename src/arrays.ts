@@ -17,3 +17,14 @@ export function max(arr: number[]): number {
 export function min(arr: number[]): number {
   return arr.reduce((currMin, i) => Math.min(currMin, i), Infinity);
 }
+
+export function removeAt<T>(arr: T[], idx: number): T[] {
+  const out: T[] = [];
+  arr.forEach((item, i) => {
+    if (i === idx) {
+      return;
+    }
+    out.push(item);
+  });
+  return out;
+}

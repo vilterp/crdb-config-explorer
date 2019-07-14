@@ -1,9 +1,13 @@
 import React from "react";
 
+export interface Situation {
+  config: Configuration;
+  downNodeIDs: number[];
+}
+
 export interface Configuration {
   table: Table;
   formation: Formation;
-  downNodeIDs: number[];
 }
 
 export interface Formation {
@@ -60,15 +64,19 @@ export interface Hop {
 
 // helper funcs
 
-export function nodesInFormation(f: Formation): number {
-  return f.regions.reduce((sum, region) => sum + nodesInRegion(region), 0);
+export function numNodesInFormation(f: Formation): number {
+  return f.regions.reduce((sum, region) => sum + numNodesInRegion(region), 0);
 }
 
-export function nodesInRegion(reg: Region): number {
-  return reg.azs.reduce((sum, az) => sum + nodesInAZ(az), 0);
+export function numNodesInRegion(reg: Region): number {
+  return reg.azs.reduce((sum, az) => sum + numNodesInAZ(az), 0);
 }
 
-export function nodesInAZ(az: AZ): number {
+export function nodesInRegion(reg: Region): Node[] {
+  return reg.azs.flatMap(az => az.nodes);
+}
+
+export function numNodesInAZ(az: AZ): number {
   return az.nodes.length;
 }
 
@@ -141,6 +149,10 @@ export function schemaPathForKVWrite(
 
 export function nodeForID(f: Formation, nodeID: number): NodePath | undefined {
   return nodePathsForFormation(f).find(np => np.nodeID === nodeID);
+}
+
+export function allNodesDown(nodes: Node[], downNodeIDs: number[]): boolean {
+  return nodes.every(n => downNodeIDs.indexOf(n.id) !== -1);
 }
 
 // Writes

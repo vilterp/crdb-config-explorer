@@ -27,9 +27,11 @@ function App() {
 
       <h3>Development</h3>
       <SituationView
-        config={{
-          formation: singleNode,
-          table: usersTableUnPartitioned,
+        situation={{
+          config: {
+            formation: singleNode,
+            table: usersTableUnPartitioned,
+          },
           downNodeIDs: [],
         }}
         writes={[]}
@@ -37,9 +39,11 @@ function App() {
 
       <h3>Basic Production</h3>
       <SituationView
-        config={{
-          formation: threeNodesOneRegion,
-          table: usersTableUnPartitioned,
+        situation={{
+          config: {
+            formation: threeNodesOneRegion,
+            table: usersTableUnPartitioned,
+          },
           downNodeIDs: [],
         }}
         writes={[
@@ -59,9 +63,11 @@ function App() {
 
       <h3>Naive Multiregion</h3>
       <SituationView
-        config={{
-          formation: threeNodesThreeRegions,
-          table: usersTableUnPartitioned,
+        situation={{
+          config: {
+            formation: threeNodesThreeRegions,
+            table: usersTableUnPartitioned,
+          },
           downNodeIDs: [],
         }}
         writes={[
@@ -86,9 +92,11 @@ function App() {
 
       <h3>Geo-partitioned replicas</h3>
       <SituationView
-        config={{
-          formation: threeNodesThreeRegions,
-          table: usersTablePartitioned,
+        situation={{
+          config: {
+            formation: threeNodesThreeRegions,
+            table: usersTablePartitioned,
+          },
           downNodeIDs: [2, 3],
         }}
         writes={[
@@ -105,9 +113,11 @@ function App() {
 
       <h3>Geo-partitioned leaseholders</h3>
       <SituationView
-        config={{
-          formation: threeNodesThreeRegions,
-          table: usersTableLeaseholderPartitioned,
+        situation={{
+          config: {
+            formation: threeNodesThreeRegions,
+            table: usersTableLeaseholderPartitioned,
+          },
           downNodeIDs: [],
         }}
         writes={[
@@ -124,9 +134,11 @@ function App() {
 
       <h3>Duplicate Indexes</h3>
       <SituationView
-        config={{
-          formation: threeNodesThreeRegions,
-          table: usersTableDupIndexes,
+        situation={{
+          config: {
+            formation: threeNodesThreeRegions,
+            table: usersTableDupIndexes,
+          },
           downNodeIDs: [],
         }}
         writes={[

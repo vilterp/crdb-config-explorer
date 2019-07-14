@@ -1,20 +1,27 @@
 import * as React from "react";
 import {
+  allNodesDown,
   Configuration,
   NodePath,
   nodePathsForFormation,
   nodePathToStr,
-  nodesInAZ,
-  nodesInFormation,
   nodesInRegion,
+  numNodesInAZ,
+  numNodesInFormation,
+  numNodesInRegion,
   partitionsInIndex,
   partitionsInTable,
   SchemaPath,
 } from "../model";
 import { allocate, Allocation } from "../allocate";
 import classNames from "classnames";
+import { removeAt } from "../arrays";
 
-export function ConfigurationView(props: { config: Configuration }) {
+export function ConfigurationView(props: {
+  config: Configuration;
+  downNodeIDs: number[];
+  setDownNodeIDs: (nowDown: number[]) => void;
+}) {
   const table = props.config.table;
 
   return (
@@ -25,7 +32,7 @@ export function ConfigurationView(props: { config: Configuration }) {
           <td className="schema-level-label">Table</td>
           <td className="schema-level-label">Index</td>
           <td className="schema-level-label">Partition</td>
-          <td colSpan={nodesInFormation(props.config.formation)} />
+          <td colSpan={numNodesInFormation(props.config.formation)} />
         </tr>
         <tr>
           <th className="formation-level-label">Region</th>
@@ -34,8 +41,13 @@ export function ConfigurationView(props: { config: Configuration }) {
           {props.config.formation.regions.map(region => (
             <th
               key={region.name}
-              colSpan={nodesInRegion(region)}
-              className="formation-node"
+              colSpan={numNodesInRegion(region)}
+              className={classNames("formation-node", {
+                "formation-node-down": allNodesDown(
+                  nodesInRegion(region),
+                  props.downNodeIDs,
+                ),
+              })}
             >
               {region.name}
             </th>
@@ -49,8 +61,13 @@ export function ConfigurationView(props: { config: Configuration }) {
             region.azs.map(az => (
               <th
                 key={az.name}
-                colSpan={nodesInAZ(az)}
-                className="formation-node"
+                colSpan={numNodesInAZ(az)}
+                className={classNames("formation-node", {
+                  "formation-node-down": allNodesDown(
+                    az.nodes,
+                    props.downNodeIDs,
+                  ),
+                })}
               >
                 {az.name}
               </th>
@@ -66,12 +83,15 @@ export function ConfigurationView(props: { config: Configuration }) {
               az.nodes.map(node => (
                 <th
                   key={node.id}
+                  onClick={() =>
+                    toggleDown(props.downNodeIDs, node.id, props.setDownNodeIDs)
+                  }
                   className={classNames(
                     "formation-node",
                     "formation-node-leaf",
                     {
                       "formation-node-down":
-                        props.config.downNodeIDs.indexOf(node.id) !== -1,
+                        props.downNodeIDs.indexOf(node.id) !== -1,
                     },
                   )}
                 >
@@ -106,7 +126,7 @@ export function ConfigurationView(props: { config: Configuration }) {
                     index: index,
                     partition: partition,
                   },
-                  props.config,
+                  props.downNodeIDs,
                 ),
               )}
             </tr>
@@ -120,10 +140,10 @@ export function ConfigurationView(props: { config: Configuration }) {
 function renderCell(
   nodePath: NodePath,
   schemaPath: SchemaPath,
-  config: Configuration,
+  downNodeIDs: number[],
 ): React.ReactNode {
   const key = nodePathToStr(nodePath);
-  const allocation = allocate(nodePath, schemaPath, config.downNodeIDs);
+  const allocation = allocate(nodePath, schemaPath, downNodeIDs);
   const explanation = cellExplanation(schemaPath, nodePath, allocation);
   const className = (() => {
     switch (allocation.type) {
@@ -158,4 +178,21 @@ function cellExplanation(
       ? "Leaseholders have been pinned to this region."
       : "";
   return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}. ${leaseholdersPinned}`;
+}
+
+function toggleDown(
+  ids: number[],
+  id: number,
+  setIDs: (newIDs: number[]) => void,
+) {
+  const newIDs = toggleDownList(ids, id);
+  setIDs(newIDs);
+}
+
+function toggleDownList(ids: number[], id: number): number[] {
+  const index = ids.indexOf(id);
+  if (index === -1) {
+    return [...ids, id];
+  }
+  return removeAt(ids, index);
 }

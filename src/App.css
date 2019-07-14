@@ -48,6 +48,7 @@
 
 .config-view .formation-node.formation-node-leaf {
   border-bottom: 1px solid black;
+  cursor: pointer;
 }
 
 .config-view .formation-node.formation-node-down {

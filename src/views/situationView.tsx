@@ -1,22 +1,29 @@
 import * as React from "react";
-import { Configuration, SQLWrite } from "../model";
+import { Situation, SQLWrite } from "../model";
 import { ConfigurationView } from "./configurationMatrix";
 import { hopSequenceForSQLWrite } from "../readWrite";
 import { HopSequenceView } from "./hopSequence";
+import { useState } from "react";
 
 export function SituationView(props: {
-  config: Configuration;
+  situation: Situation;
   writes: { write: SQLWrite; desc: React.ReactNode }[];
 }) {
+  const [downNodeIDs, setDownNodeIDs] = useState(props.situation.downNodeIDs);
+
   return (
     <>
-      <ConfigurationView config={props.config} />
+      <ConfigurationView
+        config={props.situation.config}
+        downNodeIDs={downNodeIDs}
+        setDownNodeIDs={setDownNodeIDs}
+      />
       {props.writes.length > 0 && (
         <>
           <h4>Simulated Writes</h4>
           {props.writes.map((write, idx) => {
             const hopSequence = hopSequenceForSQLWrite(
-              props.config,
+              props.situation,
               write.write,
             );
             return (
@@ -24,7 +31,7 @@ export function SituationView(props: {
                 <h5>{write.desc}</h5>
                 <WriteDesc write={write.write} />
                 <HopSequenceView
-                  formation={props.config.formation}
+                  formation={props.situation.config.formation}
                   sequence={hopSequence}
                 />
               </div>
