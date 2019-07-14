@@ -15,6 +15,7 @@ import {
   partitionsInIndex,
   partitionsInTable,
   SchemaPath,
+  ZoneConfig,
 } from "../model";
 import { allocate, Allocation } from "../allocate";
 import classNames from "classnames";
@@ -141,7 +142,7 @@ export function ConfigurationView(props: {
                     className={classNames("schema-node")}
                     rowSpan={partitionsInTable(table)}
                   >
-                    {table.name}
+                    {withZCIndicator(table.name, table.zoneConfig)}
                   </td>
                 ) : null}
                 {partitionIdx === 0 ? (
@@ -149,7 +150,7 @@ export function ConfigurationView(props: {
                     className={classNames("schema-node")}
                     rowSpan={partitionsInIndex(index)}
                   >
-                    {index.name}
+                    {withZCIndicator(index.name, index.zoneConfig)}
                   </td>
                 ) : null}
                 <td
@@ -159,7 +160,7 @@ export function ConfigurationView(props: {
                     "schema-node-unavailable": replStatus === "Unavailable",
                   })}
                 >
-                  {partition.name}
+                  {withZCIndicator(partition.name, partition.zoneConfig)}
                 </td>
                 {nodePathsForFormation(props.config.formation).map(nodePath =>
                   renderCell(nodePath, schemaPath, props.downNodeIDs),
@@ -171,6 +172,29 @@ export function ConfigurationView(props: {
       </tbody>
     </table>
   );
+}
+
+function withZCIndicator(
+  name: string,
+  zc: ZoneConfig | undefined,
+): React.ReactNode {
+  const title = zc === undefined ? "" : zcDesc(zc);
+  return (
+    <span title={title}>
+      {name}
+      {zc === undefined ? "" : "*"}
+    </span>
+  );
+}
+
+function zcDesc(zc: ZoneConfig): string {
+  if (zc.leaseholdersRegion) {
+    return `zone config pinning leaseholders to region ${zc.leaseholdersRegion}`;
+  }
+  if (zc.dataRegion) {
+    return `zone config pinning data to region ${zc.dataRegion}`;
+  }
+  return "";
 }
 
 function classNameForFormationNode(localityStatus: LocalityStatus): string {
