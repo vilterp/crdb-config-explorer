@@ -1,17 +1,17 @@
 import {
   Configuration,
+  Hop,
   HopSequence,
   KVWrite,
   nodeForID,
   NodePath,
   nodePathsForFormation,
-  RegionName,
   schemaPathForKVWrite,
   SQLWrite,
   Table
 } from "./model";
 import { allocate } from "./allocate";
-import { filterMap } from "./arrays";
+import { filterMap, min } from "./arrays";
 
 export function hopSequenceForSQLWrite(
   config: Configuration,
@@ -21,35 +21,62 @@ export function hopSequenceForSQLWrite(
   const kvWrites = kvWritesForSQLWrite(config.table, sqlWrite);
   return {
     hops: kvWrites.flatMap(kvWrite => {
-      const fromNode = nodeForID(config.formation, sqlWrite.gateWayNodeID);
-      if (!fromNode) {
+      const gatewayNode = nodeForID(config.formation, sqlWrite.gateWayNodeID);
+      if (!gatewayNode) {
         throw new Error("couldn't find gateway node");
       }
-      const toNodes = possibleNodesForKVWrite(config, kvWrite);
-      const toNode = toNodes[0];
-      const hopLatency = latency(fromNode, toNode);
+      const possLHNodes = possibleLeaseholderNodesForKVWrite(config, kvWrite);
+      const lhNode = possLHNodes[0];
+      const replicaNodes = possLHNodes.slice(1, 3);
+      const gateWayToLHLatency = latency(gatewayNode, lhNode);
+      const replHops = replicaNodes.flatMap(replNode => {
+        const replHopLatency = latency(lhNode, replNode);
+        return [
+          {
+            from: lhNode,
+            to: replNode,
+            start: gateWayToLHLatency,
+            end: gateWayToLHLatency + replHopLatency
+          },
+          {
+            from: replNode,
+            to: lhNode,
+            start: gateWayToLHLatency + replHopLatency,
+            end: gateWayToLHLatency + replHopLatency * 2
+          }
+        ];
+      });
+      const replDone = replDoneTimestamp(lhNode, replHops);
       return [
+        // TODO: there might be no hop if gateway node is leaseholder
         {
-          from: fromNode,
-          to: toNode,
+          from: gatewayNode,
+          to: lhNode,
           start: 0,
-          end: hopLatency
+          end: gateWayToLHLatency
         },
+        ...replHops,
         {
-          from: toNode,
-          to: fromNode,
-          start: hopLatency + 1,
-          end: hopLatency * 2 + 1
+          from: lhNode,
+          to: gatewayNode,
+          start: replDone,
+          end: replDone + gateWayToLHLatency
         }
       ];
     })
   };
 }
 
+function replDoneTimestamp(lhNode: NodePath, hops: Hop[]): number {
+  const returnHops = hops.filter(h => h.to === lhNode);
+  const returnDoneTimestamps = returnHops.map(h => h.end);
+  return min(returnDoneTimestamps);
+}
+
 function latency(fromNode: NodePath, toNode: NodePath): number {
   // TODO: more realistic...
   if (fromNode.regionName === toNode.regionName) {
-    return 1;
+    return 10;
   }
   return 100;
 }
@@ -63,7 +90,7 @@ function kvWritesForSQLWrite(table: Table, write: SQLWrite): KVWrite[] {
   }));
 }
 
-function possibleNodesForKVWrite(
+function possibleLeaseholderNodesForKVWrite(
   config: Configuration,
   kvWrite: KVWrite
 ): NodePath[] {

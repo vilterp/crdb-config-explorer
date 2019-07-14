@@ -128,9 +128,9 @@ export function schemaPathForKVWrite(
   );
   if (!partition) {
     throw new Error(
-      `partition ${kvWrite.partitionName} not found in ${index.partitions
-        .map(p => p.name)
-        .join(", ")}`
+      `partition "${
+        kvWrite.partitionName
+      }" not found in [${index.partitions.map(p => `"${p.name}"`).join(", ")}]`
     );
   }
   return {

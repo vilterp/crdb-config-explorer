@@ -13,3 +13,7 @@ export function filterMap<A, B>(arr: A[], f: (t: A) => B | null): B[] {
 export function max(arr: number[]): number {
   return arr.reduce((currMax, i) => Math.max(currMax, i), 0);
 }
+
+export function min(arr: number[]): number {
+  return arr.reduce((currMin, i) => Math.min(currMin, i), Infinity);
+}

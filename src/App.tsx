@@ -1,5 +1,4 @@
 import React from "react";
-import { ConfigurationView } from "./views/configurationMatrix";
 import {
   singleNode,
   threeNodesOneRegion,
@@ -27,16 +26,27 @@ function App() {
       <h2>Single-Region Patterns</h2>
 
       <h3>Development</h3>
-      <ConfigurationView
+      <SituationView
         config={{ formation: singleNode, table: usersTableUnPartitioned }}
+        writes={[]}
       />
 
       <h3>Basic Production</h3>
-      <ConfigurationView
+      <SituationView
         config={{
           formation: threeNodesOneRegion,
           table: usersTableUnPartitioned
         }}
+        writes={[
+          {
+            desc: null,
+            write: {
+              gateWayNodeID: 1,
+              tableName: "users",
+              partitionName: "default"
+            }
+          }
+        ]}
       />
 
       <h2>Multi-Region Patterns</h2>
@@ -87,19 +97,39 @@ function App() {
       />
 
       <h3>Geo-partitioned leaseholders</h3>
-      <ConfigurationView
+      <SituationView
         config={{
           formation: threeNodesThreeRegions,
           table: usersTableLeaseholderPartitioned
         }}
+        writes={[
+          {
+            desc: null,
+            write: {
+              partitionName: "west",
+              tableName: "postal_codes",
+              gateWayNodeID: 2
+            }
+          }
+        ]}
       />
 
       <h3>Duplicate Indexes</h3>
-      <ConfigurationView
+      <SituationView
         config={{
           formation: threeNodesThreeRegions,
           table: usersTableDupIndexes
         }}
+        writes={[
+          {
+            desc: null,
+            write: {
+              partitionName: "default",
+              tableName: "postal_codes",
+              gateWayNodeID: 2
+            }
+          }
+        ]}
       />
     </div>
   );
