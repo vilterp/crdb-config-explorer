@@ -179,8 +179,9 @@ export function getReplicationStatus(
   situ: Situation,
 ): ReplicationStatus {
   const numReplicas = replicasForSchemaPath(schemaPath, situ).length;
+  const totalNodes = numNodesInFormation(situ.config.formation);
   const desiredReplicas = 3; // TODO: get from zone config
-  const quorumReplicas = Math.ceil(desiredReplicas / 2);
+  const quorumReplicas = Math.min(totalNodes, Math.ceil(desiredReplicas / 2));
   if (numReplicas >= desiredReplicas) {
     return "OK";
   }
