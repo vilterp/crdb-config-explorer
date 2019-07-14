@@ -59,7 +59,11 @@
   cursor: pointer;
 }
 
-.config-view .formation-node.formation-node-down {
+.config-view .formation-node.formation-node-partially-down {
+  background-color: lightyellow;
+}
+
+.config-view .formation-node.formation-node-fully-down {
   background-color: pink;
 }
 

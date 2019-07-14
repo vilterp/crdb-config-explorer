@@ -2,7 +2,10 @@ import * as React from "react";
 import {
   allNodesDown,
   Configuration,
+  getAZStatus,
+  getRegionStatus,
   getReplicationStatus,
+  LocalityStatus,
   NodePath,
   nodePathsForFormation,
   nodePathToStr,
@@ -39,40 +42,36 @@ export function ConfigurationView(props: {
           <th className="formation-level-label">Region</th>
           <th colSpan={3} />
           {/* regions */}
-          {props.config.formation.regions.map(region => (
-            <th
-              key={region.name}
-              colSpan={numNodesInRegion(region)}
-              className={classNames("formation-node", {
-                "formation-node-down": allNodesDown(
-                  nodesInRegion(region),
-                  props.downNodeIDs,
-                ),
-              })}
-            >
-              {region.name}
-            </th>
-          ))}
+          {props.config.formation.regions.map(region => {
+            const status = getRegionStatus(region, props.downNodeIDs);
+            return (
+              <th
+                key={region.name}
+                colSpan={numNodesInRegion(region)}
+                className={classNameForFormationNode(status)}
+              >
+                {region.name}
+              </th>
+            );
+          })}
         </tr>
         <tr>
           <th className="formation-level-label">AZ</th>
           <th colSpan={3} />
           {/* az's */}
           {props.config.formation.regions.map(region =>
-            region.azs.map(az => (
-              <th
-                key={az.name}
-                colSpan={numNodesInAZ(az)}
-                className={classNames("formation-node", {
-                  "formation-node-down": allNodesDown(
-                    az.nodes,
-                    props.downNodeIDs,
-                  ),
-                })}
-              >
-                {az.name}
-              </th>
-            )),
+            region.azs.map(az => {
+              const status = getAZStatus(az, props.downNodeIDs);
+              return (
+                <th
+                  key={az.name}
+                  colSpan={numNodesInAZ(az)}
+                  className={classNameForFormationNode(status)}
+                >
+                  {az.name}
+                </th>
+              );
+            }),
           )}
         </tr>
         <tr>
@@ -91,7 +90,7 @@ export function ConfigurationView(props: {
                     "formation-node",
                     "formation-node-leaf",
                     {
-                      "formation-node-down":
+                      "formation-node-fully-down":
                         props.downNodeIDs.indexOf(node.id) !== -1,
                     },
                   )}
@@ -153,6 +152,13 @@ export function ConfigurationView(props: {
       </tbody>
     </table>
   );
+}
+
+function classNameForFormationNode(localityStatus: LocalityStatus): string {
+  return classNames("formation-node", {
+    "formation-node-partially-down": localityStatus === "PartiallyDown",
+    "formation-node-fully-down": localityStatus === "FullyDown",
+  });
 }
 
 function renderCell(

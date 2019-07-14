@@ -28,3 +28,13 @@ export function removeAt<T>(arr: T[], idx: number): T[] {
   });
   return out;
 }
+
+export function intersection<T>(as: T[], bs: T[]): T[] {
+  const int: T[] = [];
+  as.forEach(a => {
+    if (bs.indexOf(a) !== -1) {
+      int.push(a);
+    }
+  });
+  return int;
+}

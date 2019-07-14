@@ -1,5 +1,6 @@
 import React from "react";
 import { replicasForSchemaPath } from "./allocate";
+import { intersection } from "./arrays";
 
 export interface Situation {
   config: Configuration;
@@ -170,7 +171,7 @@ export interface KVWrite {
   partitionName: string;
 }
 
-// vulnerability
+// replication status
 
 type ReplicationStatus = "OK" | "Underreplicated" | "Unavailable";
 
@@ -189,4 +190,32 @@ export function getReplicationStatus(
     return "Unavailable";
   }
   return "Underreplicated";
+}
+
+// locality status
+
+export type LocalityStatus = "OK" | "PartiallyDown" | "FullyDown";
+
+export function getAZStatus(az: AZ, downNodes: number[]): LocalityStatus {
+  const ids = az.nodes.map(n => n.id);
+  return statusForNodeSet(ids, downNodes);
+}
+
+export function getRegionStatus(
+  r: Region,
+  downNodes: number[],
+): LocalityStatus {
+  const ids = nodesInRegion(r).map(n => n.id);
+  return statusForNodeSet(ids, downNodes);
+}
+
+function statusForNodeSet(ids: number[], downNodes: number[]): LocalityStatus {
+  const downInThisAZ = intersection(ids, downNodes);
+  if (downInThisAZ.length === 0) {
+    return "OK";
+  }
+  if (downInThisAZ.length === ids.length) {
+    return "FullyDown";
+  }
+  return "PartiallyDown";
 }
