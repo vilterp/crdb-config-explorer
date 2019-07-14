@@ -9,9 +9,10 @@ import {
   nodesInRegion,
   partitionsInIndex,
   partitionsInTable,
-  SchemaPath
+  SchemaPath,
 } from "../model";
 import { allocate, Allocation } from "../allocate";
+import classNames from "classnames";
 
 export function ConfigurationView(props: { config: Configuration }) {
   const table = props.config.table;
@@ -53,7 +54,7 @@ export function ConfigurationView(props: { config: Configuration }) {
               >
                 {az.name}
               </th>
-            ))
+            )),
           )}
         </tr>
         <tr>
@@ -65,12 +66,19 @@ export function ConfigurationView(props: { config: Configuration }) {
               az.nodes.map(node => (
                 <th
                   key={node.id}
-                  className="formation-node formation-node-leaf"
+                  className={classNames(
+                    "formation-node",
+                    "formation-node-leaf",
+                    {
+                      "formation-node-down":
+                        props.config.downNodeIDs.indexOf(node.id) !== -1,
+                    },
+                  )}
                 >
                   n{node.id}
                 </th>
-              ))
-            )
+              )),
+            ),
           )}
         </tr>
       </thead>
@@ -91,14 +99,18 @@ export function ConfigurationView(props: { config: Configuration }) {
               ) : null}
               <td className="schema-node schema-node-leaf">{partition.name}</td>
               {nodePathsForFormation(props.config.formation).map(nodePath =>
-                renderCell(nodePath, {
-                  table: props.config.table,
-                  index: index,
-                  partition: partition
-                })
+                renderCell(
+                  nodePath,
+                  {
+                    table: props.config.table,
+                    index: index,
+                    partition: partition,
+                  },
+                  props.config,
+                ),
               )}
             </tr>
-          ))
+          )),
         )}
       </tbody>
     </table>
@@ -107,13 +119,22 @@ export function ConfigurationView(props: { config: Configuration }) {
 
 function renderCell(
   nodePath: NodePath,
-  schemaPath: SchemaPath
+  schemaPath: SchemaPath,
+  config: Configuration,
 ): React.ReactNode {
   const key = nodePathToStr(nodePath);
-  const allocation = allocate(nodePath, schemaPath);
+  const allocation = allocate(nodePath, schemaPath, config.downNodeIDs);
   const explanation = cellExplanation(schemaPath, nodePath, allocation);
-  const className =
-    allocation.type === "Data" ? "cell cell-data" : "cell cell-no-data";
+  const className = (() => {
+    switch (allocation.type) {
+      case "Data":
+        return "cell cell-data";
+      case "NoData":
+        return "cell cell-no-data";
+      case "WouldHaveDataButDown":
+        return "cell cell-data-but-down";
+    }
+  })();
   return (
     <td key={key} title={explanation} className={className}>
       {allocation.type === "Data" && allocation.pinnedLeaseholders ? "LH" : ""}
@@ -124,12 +145,17 @@ function renderCell(
 function cellExplanation(
   schemaPath: SchemaPath,
   nodePath: NodePath,
-  all: Allocation
+  all: Allocation,
 ) {
-  const presence = all.type === "Data" ? "present" : "not present";
+  const presence =
+    all.type === "Data"
+      ? "is present"
+      : all.type === "NoData"
+      ? "is not present"
+      : "would be present if the node were not down";
   const leaseholdersPinned =
     all.type === "Data" && all.pinnedLeaseholders
       ? "Leaseholders have been pinned to this region."
       : "";
-  return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" is ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}. ${leaseholdersPinned}`;
+  return `Data for partition "${schemaPath.partition.name}" of index "${schemaPath.index.name}" of table "${schemaPath.table.name}" ${presence} on node ${nodePath.nodeID} in AZ ${nodePath.azName} of region ${nodePath.regionName}. ${leaseholdersPinned}`;
 }

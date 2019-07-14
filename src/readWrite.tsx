@@ -8,14 +8,14 @@ import {
   nodePathsForFormation,
   schemaPathForKVWrite,
   SQLWrite,
-  Table
+  Table,
 } from "./model";
 import { allocate } from "./allocate";
 import { filterMap, min } from "./arrays";
 
 export function hopSequenceForSQLWrite(
   config: Configuration,
-  sqlWrite: SQLWrite
+  sqlWrite: SQLWrite,
 ): HopSequence {
   // TODO: don't hardcode primary partition... hmmm
   const kvWrites = kvWritesForSQLWrite(config.table, sqlWrite);
@@ -36,14 +36,14 @@ export function hopSequenceForSQLWrite(
             from: lhNode,
             to: replNode,
             start: gateWayToLHLatency,
-            end: gateWayToLHLatency + replHopLatency
+            end: gateWayToLHLatency + replHopLatency,
           },
           {
             from: replNode,
             to: lhNode,
             start: gateWayToLHLatency + replHopLatency,
-            end: gateWayToLHLatency + replHopLatency * 2
-          }
+            end: gateWayToLHLatency + replHopLatency * 2,
+          },
         ];
       });
       const replDone = replDoneTimestamp(lhNode, replHops);
@@ -53,17 +53,17 @@ export function hopSequenceForSQLWrite(
           from: gatewayNode,
           to: lhNode,
           start: 0,
-          end: gateWayToLHLatency
+          end: gateWayToLHLatency,
         },
         ...replHops,
         {
           from: lhNode,
           to: gatewayNode,
           start: replDone,
-          end: replDone + gateWayToLHLatency
-        }
+          end: replDone + gateWayToLHLatency,
+        },
       ];
-    })
+    }),
   };
 }
 
@@ -86,27 +86,27 @@ function kvWritesForSQLWrite(table: Table, write: SQLWrite): KVWrite[] {
   return table.indexes.map(idx => ({
     tableName: table.name,
     indexName: idx.name,
-    partitionName: write.partitionName
+    partitionName: write.partitionName,
   }));
 }
 
 function possibleLeaseholderNodesForKVWrite(
   config: Configuration,
-  kvWrite: KVWrite
+  kvWrite: KVWrite,
 ): NodePath[] {
   const possibilities = filterMap(
     nodePathsForFormation(config.formation),
     nodePath => {
       const schemaPath = schemaPathForKVWrite(config.table, kvWrite);
-      const allocation = allocate(nodePath, schemaPath);
+      const allocation = allocate(nodePath, schemaPath, config.downNodeIDs);
       if (allocation.type === "NoData") {
         return null;
       }
       return {
         nodePath,
-        leaseholdersPinned: allocation.pinnedLeaseholders
+        leaseholdersPinned: allocation.pinnedLeaseholders,
       };
-    }
+    },
   );
   const anyLeaseholdersPinned = possibilities.some(p => p.leaseholdersPinned);
   return (anyLeaseholdersPinned

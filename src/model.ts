@@ -1,11 +1,7 @@
-export interface Situation {
-  config: Configuration;
-  downNodeIDs: number[];
-}
-
 export interface Configuration {
   table: Table;
   formation: Formation;
+  downNodeIDs: number[];
 }
 
 export interface Formation {
@@ -97,7 +93,7 @@ function nodePathsForAZ(regionName: string, az: AZ): NodePath[] {
   return az.nodes.map(node => ({
     regionName,
     azName: az.name,
-    nodeID: node.id
+    nodeID: node.id,
   }));
 }
 
@@ -117,26 +113,26 @@ export type RegionName = string;
 
 export function schemaPathForKVWrite(
   table: Table,
-  kvWrite: KVWrite
+  kvWrite: KVWrite,
 ): SchemaPath {
   const index = table.indexes.find(i => i.name === kvWrite.indexName);
   if (!index) {
     throw new Error("index not found"); // bah
   }
   const partition = index.partitions.find(
-    p => p.name === kvWrite.partitionName
+    p => p.name === kvWrite.partitionName,
   );
   if (!partition) {
     throw new Error(
       `partition "${
         kvWrite.partitionName
-      }" not found in [${index.partitions.map(p => `"${p.name}"`).join(", ")}]`
+      }" not found in [${index.partitions.map(p => `"${p.name}"`).join(", ")}]`,
     );
   }
   return {
     table,
     index,
-    partition
+    partition,
   };
 }
 

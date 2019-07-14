@@ -6,7 +6,7 @@ import {
   usersTableDupIndexes,
   usersTableLeaseholderPartitioned,
   usersTablePartitioned,
-  usersTableUnPartitioned
+  usersTableUnPartitioned,
 } from "./configurations";
 import "./App.css";
 import { SituationView } from "./views/situationView";
@@ -27,7 +27,11 @@ function App() {
 
       <h3>Development</h3>
       <SituationView
-        config={{ formation: singleNode, table: usersTableUnPartitioned }}
+        config={{
+          formation: singleNode,
+          table: usersTableUnPartitioned,
+          downNodeIDs: [],
+        }}
         writes={[]}
       />
 
@@ -35,7 +39,8 @@ function App() {
       <SituationView
         config={{
           formation: threeNodesOneRegion,
-          table: usersTableUnPartitioned
+          table: usersTableUnPartitioned,
+          downNodeIDs: [],
         }}
         writes={[
           {
@@ -43,9 +48,9 @@ function App() {
             write: {
               gateWayNodeID: 1,
               tableName: "users",
-              partitionName: "default"
-            }
-          }
+              partitionName: "default",
+            },
+          },
         ]}
       />
 
@@ -56,7 +61,8 @@ function App() {
       <SituationView
         config={{
           formation: threeNodesThreeRegions,
-          table: usersTableUnPartitioned
+          table: usersTableUnPartitioned,
+          downNodeIDs: [],
         }}
         writes={[
           {
@@ -64,17 +70,17 @@ function App() {
             write: {
               tableName: "users",
               partitionName: "default",
-              gateWayNodeID: 3
-            }
+              gateWayNodeID: 3,
+            },
           },
           {
             desc: "non-local write (bad!)",
             write: {
               tableName: "users",
               partitionName: "default",
-              gateWayNodeID: 4
-            }
-          }
+              gateWayNodeID: 4,
+            },
+          },
         ]}
       />
 
@@ -82,7 +88,8 @@ function App() {
       <SituationView
         config={{
           formation: threeNodesThreeRegions,
-          table: usersTablePartitioned
+          table: usersTablePartitioned,
+          downNodeIDs: [2, 3],
         }}
         writes={[
           {
@@ -90,9 +97,9 @@ function App() {
             write: {
               gateWayNodeID: 2,
               tableName: "users",
-              partitionName: "west"
-            }
-          }
+              partitionName: "west",
+            },
+          },
         ]}
       />
 
@@ -100,7 +107,8 @@ function App() {
       <SituationView
         config={{
           formation: threeNodesThreeRegions,
-          table: usersTableLeaseholderPartitioned
+          table: usersTableLeaseholderPartitioned,
+          downNodeIDs: [],
         }}
         writes={[
           {
@@ -108,9 +116,9 @@ function App() {
             write: {
               partitionName: "west",
               tableName: "postal_codes",
-              gateWayNodeID: 2
-            }
-          }
+              gateWayNodeID: 2,
+            },
+          },
         ]}
       />
 
@@ -118,7 +126,8 @@ function App() {
       <SituationView
         config={{
           formation: threeNodesThreeRegions,
-          table: usersTableDupIndexes
+          table: usersTableDupIndexes,
+          downNodeIDs: [],
         }}
         writes={[
           {
@@ -126,9 +135,9 @@ function App() {
             write: {
               partitionName: "default",
               tableName: "postal_codes",
-              gateWayNodeID: 2
-            }
-          }
+              gateWayNodeID: 2,
+            },
+          },
         ]}
       />
     </div>

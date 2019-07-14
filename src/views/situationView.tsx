@@ -17,7 +17,7 @@ export function SituationView(props: {
           {props.writes.map((write, idx) => {
             const hopSequence = hopSequenceForSQLWrite(
               props.config,
-              write.write
+              write.write,
             );
             return (
               <div key={idx}>
