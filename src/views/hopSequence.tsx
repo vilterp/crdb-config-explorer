@@ -60,10 +60,7 @@ export function HopSequenceView(props: {
                   JSON.stringify(props.highlightedTrace),
               })}
               // TODO: these are very thin and hard to mouse over...
-              onMouseOver={() => {
-                console.log("setting", JSON.stringify(hop.traceNode));
-                props.setHighlightedTrace(hop.traceNode);
-              }}
+              onMouseOver={() => props.setHighlightedTrace(hop.traceNode)}
               onMouseOut={() => props.setHighlightedTrace(undefined)}
               x1={xForNode(hop.from.nodeID)}
               x2={xForNode(hop.to.nodeID)}

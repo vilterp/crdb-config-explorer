@@ -15,10 +15,7 @@ export function TraceView(props: {
             JSON.stringify(props.highlightedTrace) ===
             JSON.stringify(props.trace),
         })}
-        onMouseEnter={() => {
-          console.log("setting", JSON.stringify(props.trace));
-          props.setHighlightedTrace(props.trace);
-        }}
+        onMouseEnter={() => props.setHighlightedTrace(props.trace)}
         onMouseLeave={() => props.setHighlightedTrace(undefined)}
       >
         On n{props.trace.nodePath.nodeID}:{" "}
