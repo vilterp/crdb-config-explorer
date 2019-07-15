@@ -1,9 +1,10 @@
 import * as React from "react";
 import { Situation, SQLWrite } from "../model";
 import { ConfigurationView } from "./configurationMatrix";
-import { hopSequenceForSQLWrite } from "../readWrite";
+import { hopSequenceForSQLWrite, traceForSQLWrite } from "../readWrite";
 import { HopSequenceView } from "./hopSequence";
 import { useState } from "react";
+import { TraceView } from "./traceView";
 
 export function SituationView(props: {
   situation: Situation;
@@ -30,10 +31,13 @@ export function SituationView(props: {
               <div key={idx}>
                 <h5>{write.desc}</h5>
                 <WriteDesc write={write.write} />
-                <HopSequenceView
-                  formation={props.situation.config.formation}
-                  sequence={hopSequence}
+                <TraceView
+                  trace={traceForSQLWrite(props.situation, write.write)}
                 />
+                {/*<HopSequenceView*/}
+                {/*  formation={props.situation.config.formation}*/}
+                {/*  sequence={hopSequence}*/}
+                {/*/>*/}
               </div>
             );
           })}

@@ -2,16 +2,50 @@ import {
   Hop,
   HopSequence,
   KVWrite,
+  Leaf,
   nodeForID,
   NodePath,
   nodePathsForFormation,
+  Par,
+  RPC,
   schemaPathForKVWrite,
   Situation,
   SQLWrite,
   Table,
+  TraceNode,
 } from "./model";
 import { allocate } from "./allocate";
 import { filterMap, min } from "./arrays";
+
+export function traceForSQLWrite(
+  situation: Situation,
+  sqlWrite: SQLWrite,
+): TraceNode {
+  const kvWrites = kvWritesForSQLWrite(situation.config.table, sqlWrite);
+  return {
+    nodeID: sqlWrite.gateWayNodeID,
+    process: Par(
+      kvWrites.map(kvWrite => {
+        const possLHNodes = possibleLeaseholderNodesForKVWrite(
+          situation,
+          kvWrite,
+        );
+        const lhNode = possLHNodes[0];
+        const replicaNodes = possLHNodes.slice(1, 3);
+        return RPC(
+          lhNode.nodeID,
+          `request leaseholder to write to index ${kvWrite.indexName}, partition ${kvWrite.partitionName}`,
+          Par([
+            Leaf("write data"),
+            ...replicaNodes.map(rn =>
+              RPC(rn.nodeID, "replicate data to follower", Leaf("write data")),
+            ),
+          ]),
+        );
+      }),
+    ),
+  };
+}
 
 export function hopSequenceForSQLWrite(
   situation: Situation,

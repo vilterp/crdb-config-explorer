@@ -52,6 +52,39 @@ export interface ZoneConfig {
   dataRegion: string | null;
 }
 
+// Traces & Hops
+
+export interface TraceNode {
+  nodeID: number;
+  process: ProcessNode;
+}
+
+export type ProcessNode =
+  | { type: "Parallel"; children: ProcessNode[] }
+  | { type: "Sequence"; children: ProcessNode[] }
+  | { type: "Leaf"; desc: string }
+  | { type: "RPC"; remoteTrace: TraceNode; desc: string };
+
+export function Seq(children: ProcessNode[]): ProcessNode {
+  return { type: "Sequence", children };
+}
+
+export function Par(children: ProcessNode[]): ProcessNode {
+  return { type: "Parallel", children };
+}
+
+export function Leaf(desc: string): ProcessNode {
+  return { type: "Leaf", desc };
+}
+
+export function RPC(
+  nodeID: number,
+  desc: string,
+  process: ProcessNode,
+): ProcessNode {
+  return { type: "RPC", desc, remoteTrace: { nodeID, process } };
+}
+
 export interface HopSequence {
   hops: Hop[];
 }
