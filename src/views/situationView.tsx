@@ -27,13 +27,13 @@ export function SituationView(props: {
               props.situation,
               write.write,
             );
+            const trace = traceForSQLWrite(props.situation, write.write);
             return (
               <div key={idx}>
                 <h5>{write.desc}</h5>
                 <WriteDesc write={write.write} />
-                <TraceView
-                  trace={traceForSQLWrite(props.situation, write.write)}
-                />
+                <TraceView trace={trace} />
+                <pre>{JSON.stringify(trace, null, 2)}</pre>
                 {/*<HopSequenceView*/}
                 {/*  formation={props.situation.config.formation}*/}
                 {/*  sequence={hopSequence}*/}

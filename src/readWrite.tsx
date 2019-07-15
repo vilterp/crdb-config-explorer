@@ -24,6 +24,7 @@ export function traceForSQLWrite(
   const kvWrites = kvWritesForSQLWrite(situation.config.table, sqlWrite);
   return {
     nodeID: sqlWrite.gateWayNodeID,
+    desc: `write to table ${sqlWrite.tableName}, partition ${sqlWrite.partitionName}`,
     process: Par(
       kvWrites.map(kvWrite => {
         const possLHNodes = possibleLeaseholderNodesForKVWrite(
@@ -36,7 +37,7 @@ export function traceForSQLWrite(
           lhNode.nodeID,
           `request leaseholder to write to index ${kvWrite.indexName}, partition ${kvWrite.partitionName}`,
           Par([
-            Leaf("write data"),
+            Leaf("Write data"),
             ...replicaNodes.map(rn =>
               RPC(rn.nodeID, "replicate data to follower", Leaf("write data")),
             ),

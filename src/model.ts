@@ -56,6 +56,7 @@ export interface ZoneConfig {
 
 export interface TraceNode {
   nodeID: number;
+  desc: string;
   process: ProcessNode;
 }
 
@@ -63,7 +64,7 @@ export type ProcessNode =
   | { type: "Parallel"; children: ProcessNode[] }
   | { type: "Sequence"; children: ProcessNode[] }
   | { type: "Leaf"; desc: string }
-  | { type: "RPC"; remoteTrace: TraceNode; desc: string };
+  | { type: "RPC"; remoteTrace: TraceNode };
 
 export function Seq(children: ProcessNode[]): ProcessNode {
   return { type: "Sequence", children };
@@ -82,7 +83,7 @@ export function RPC(
   desc: string,
   process: ProcessNode,
 ): ProcessNode {
-  return { type: "RPC", desc, remoteTrace: { nodeID, process } };
+  return { type: "RPC", remoteTrace: { nodeID, process, desc } };
 }
 
 export interface HopSequence {
