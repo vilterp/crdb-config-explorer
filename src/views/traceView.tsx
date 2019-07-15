@@ -9,83 +9,162 @@ export function TraceView(props: {
 }) {
   return (
     <ul className="trace-view">
-      <TraceNodeView
-        traceNode={props.trace}
-        highlightedProc={props.highlightedProc}
-        setHighlightedProc={props.setHighlightedProc}
-      />
+      <li>
+        On n{props.trace.nodePath.nodeID}:{" "}
+        <ProcessNodeView
+          process={props.trace.process}
+          highlightedProc={props.highlightedProc}
+          setHighlightedProc={props.setHighlightedProc}
+        />
+      </li>
     </ul>
   );
 }
 
-function TraceNodeView(props: {
-  traceNode: TraceNode;
+function ProcessNodeView(props: {
+  process: ProcessNode;
   highlightedProc: ProcessNode | undefined;
   setHighlightedProc: (hp: ProcessNode | undefined) => void;
 }) {
-  const children = renderChildren(props);
   return (
-    <li
+    <span
+      onMouseEnter={() => props.setHighlightedProc(props.process)}
+      onMouseLeave={() => props.setHighlightedProc(undefined)}
       className={classNames("trace-node", {
         "trace-node-highlighted":
-          // TODO: use just ===...
-          //   I can't tell why object identity is being lost...
-          //   sigh
-          JSON.stringify(props.traceNode.process) ===
-          JSON.stringify(props.highlightedProc),
+          JSON.stringify(props.highlightedProc) ===
+          JSON.stringify(props.process),
       })}
-      onMouseEnter={() => props.setHighlightedProc(props.traceNode.process)}
-      onMouseLeave={() => props.setHighlightedProc(undefined)}
     >
-      On n{props.traceNode.nodePath.nodeID}: {descr(props.traceNode.process)}
-      {children.length > 0 ? (
-        <ul>
-          {children.map(c => (
-            <li>{c}</li>
-          ))}
-        </ul>
-      ) : null}
-    </li>
+      {procContent(props)}
+    </span>
   );
 }
 
-function descr(proc: ProcessNode): string {
-  switch (proc.type) {
+function procContent(props: {
+  process: ProcessNode;
+  highlightedProc: ProcessNode | undefined;
+  setHighlightedProc: (hp: ProcessNode | undefined) => void;
+}) {
+  switch (props.process.type) {
     case "Leaf":
-      return proc.desc;
+      return <>{props.process.desc}</>;
     case "Parallel":
-      return "in parallel:";
+      return (
+        <>
+          In parallel:
+          <ul>
+            {props.process.children.map((proc, idx) => (
+              <li key={idx}>
+                <ProcessNodeView
+                  process={proc}
+                  setHighlightedProc={props.setHighlightedProc}
+                  highlightedProc={props.highlightedProc}
+                />
+              </li>
+            ))}
+          </ul>
+        </>
+      );
     case "RPC":
-      return `call to n${proc.remoteTrace.nodePath.nodeID} to ${proc.desc}:`;
+      return (
+        <>
+          call n{props.process.remoteTrace.nodePath.nodeID} to{" "}
+          {props.process.desc}
+          <TraceView
+            trace={props.process.remoteTrace}
+            setHighlightedProc={props.setHighlightedProc}
+            highlightedProc={props.highlightedProc}
+          />
+        </>
+      );
   }
 }
 
-function renderChildren(props: {
-  traceNode: TraceNode;
-  highlightedProc: ProcessNode | undefined;
-  setHighlightedProc: (hp: ProcessNode | undefined) => void;
-}): React.ReactNode[] {
-  switch (props.traceNode.process.type) {
-    case "Leaf":
-      return [];
-    case "RPC":
-      return [
-        <TraceNodeView
-          traceNode={props.traceNode.process.remoteTrace}
-          highlightedProc={props.highlightedProc}
-          setHighlightedProc={props.setHighlightedProc}
-        />,
-      ];
-    case "Parallel":
-      return props.traceNode.process.children.map(c => (
-        <TraceNodeView
-          traceNode={{ nodePath: props.traceNode.nodePath, process: c }}
-          highlightedProc={props.highlightedProc}
-          setHighlightedProc={props.setHighlightedProc}
-        />
-      ));
-  }
-}
+// export function TraceView(props: {
+//   trace: TraceNode;
+//   highlightedProc: ProcessNode | undefined;
+//   setHighlightedProc: (hp: ProcessNode | undefined) => void;
+// }) {
+//   return (
+//     <ul className="trace-view">
+//       <TraceNodeView
+//         traceNode={props.trace}
+//         highlightedProc={props.highlightedProc}
+//         setHighlightedProc={props.setHighlightedProc}
+//       />
+//     </ul>
+//   );
+// }
+//
+// function TraceNodeView(props: {
+//   traceNode: TraceNode;
+//   highlightedProc: ProcessNode | undefined;
+//   setHighlightedProc: (hp: ProcessNode | undefined) => void;
+// }) {
+//   const children = renderChildren(props);
+//   return (
+//     <li
+//       className={classNames("trace-node", {
+//         "trace-node-highlighted":
+//           // TODO: use just ===...
+//           //   I can't tell why object identity is being lost...
+//           //   sigh
+//           JSON.stringify(props.traceNode.process) ===
+//           JSON.stringify(props.highlightedProc),
+//       })}
+//       onMouseEnter={() => props.setHighlightedProc(props.traceNode.process)}
+//       onMouseLeave={() => props.setHighlightedProc(undefined)}
+//     >
+//       On n{props.traceNode.nodePath.nodeID}: {descr(props.traceNode.process)}
+//       {children.length > 0 ? (
+//         <ul>
+//           {children.map(c => (
+//             <li>{c}</li>
+//           ))}
+//         </ul>
+//       ) : null}
+//     </li>
+//   );
+// }
+//
+// function descr(proc: ProcessNode): string {
+//   switch (proc.type) {
+//     case "Leaf":
+//       return proc.desc;
+//     case "Parallel":
+//       return "in parallel:";
+//     case "RPC":
+//       return `call to n${proc.remoteTrace.nodePath.nodeID} to ${proc.desc}:`;
+//   }
+// }
+//
+// function renderChildren(props: {
+//   traceNode: TraceNode;
+//   highlightedProc: ProcessNode | undefined;
+//   setHighlightedProc: (hp: ProcessNode | undefined) => void;
+// }): React.ReactNode[] {
+//   switch (props.traceNode.process.type) {
+//     case "Leaf":
+//       return [];
+//     case "RPC":
+//       return [
+//         <TraceNodeView
+//           traceNode={props.traceNode.process.remoteTrace}
+//           highlightedProc={props.highlightedProc}
+//           setHighlightedProc={props.setHighlightedProc}
+//         />,
+//       ];
+//     case "Parallel":
+//       return props.traceNode.process.children.map(c => (
+//         <TraceNodeView
+//           traceNode={{ nodePath: props.traceNode.nodePath, process: c }}
+//           highlightedProc={props.highlightedProc}
+//           setHighlightedProc={props.setHighlightedProc}
+//         />
+//       ));
+//   }
+// }
 
 export function collapseTrace(trace: TraceNode): TraceNode {
   switch (trace.process.type) {
