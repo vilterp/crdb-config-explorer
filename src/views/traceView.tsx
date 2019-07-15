@@ -54,3 +54,25 @@ function renderChildren(trace: TraceNode): React.ReactNode[] {
       ));
   }
 }
+
+export function collapseTrace(trace: TraceNode): TraceNode {
+  switch (trace.process.type) {
+    case "RPC":
+      if (trace.nodeID === trace.process.remoteTrace.nodeID) {
+        return collapseTrace(trace.process.remoteTrace);
+      }
+      return trace;
+    case "Parallel":
+      if (trace.process.children.length === 1) {
+        return { nodeID: trace.nodeID, process: trace.process.children[0] };
+      }
+      return trace;
+    case "Sequence":
+      if (trace.process.children.length === 1) {
+        return { nodeID: trace.nodeID, process: trace.process.children[0] };
+      }
+      return trace;
+    default:
+      return trace;
+  }
+}

@@ -4,7 +4,7 @@ import { ConfigurationView } from "./configurationMatrix";
 import { hopSequenceForSQLWrite, traceForSQLWrite } from "../readWrite";
 import { HopSequenceView } from "./hopSequence";
 import { useState } from "react";
-import { TraceView } from "./traceView";
+import { collapseTrace, TraceView } from "./traceView";
 
 export function SituationView(props: {
   situation: Situation;
@@ -27,13 +27,14 @@ export function SituationView(props: {
               props.situation,
               write.write,
             );
+            const trace = collapseTrace(
+              traceForSQLWrite(props.situation, write.write),
+            );
             return (
               <div key={idx}>
                 <h5>{write.desc}</h5>
                 <WriteDesc write={write.write} />
-                <TraceView
-                  trace={traceForSQLWrite(props.situation, write.write)}
-                />
+                <TraceView trace={trace} />
                 {/*<HopSequenceView*/}
                 {/*  formation={props.situation.config.formation}*/}
                 {/*  sequence={hopSequence}*/}
