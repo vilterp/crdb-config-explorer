@@ -18,8 +18,8 @@ const NODE_LINES_START = 30;
 export function HopSequenceView(props: {
   formation: Formation;
   sequence: HopSequence;
-  highlightedProc: ProcessNode | undefined;
-  setHighlightedProc: (hp: ProcessNode | undefined) => void;
+  highlightedTrace: TraceNode | undefined;
+  setHighlightedTrace: (hp: TraceNode | undefined) => void;
 }) {
   const maxTime = max(props.sequence.map(h => yForTime(h.end)));
   const linesHeight = yForTime(maxTime);
@@ -56,12 +56,15 @@ export function HopSequenceView(props: {
                 //   I can't tell why object identity is being lost...
                 //   sigh
                 "hop-line-hovered":
-                  JSON.stringify(hop.procNode) ===
-                  JSON.stringify(props.highlightedProc),
+                  JSON.stringify(hop.traceNode) ===
+                  JSON.stringify(props.highlightedTrace),
               })}
               // TODO: these are very thin and hard to mouse over...
-              onMouseOver={() => props.setHighlightedProc(hop.procNode)}
-              onMouseOut={() => props.setHighlightedProc(undefined)}
+              onMouseOver={() => {
+                console.log("setting", JSON.stringify(hop.traceNode));
+                props.setHighlightedTrace(hop.traceNode);
+              }}
+              onMouseOut={() => props.setHighlightedTrace(undefined)}
               x1={xForNode(hop.from.nodeID)}
               x2={xForNode(hop.to.nodeID)}
               y1={yForTime(hop.start)}
@@ -84,7 +87,7 @@ function yForTime(time: number): number {
 }
 
 export function hopSequenceForTrace(trace: TraceNode): Hop[] {
-  return hopSequenceRecurse(0, trace.nodePath, trace.process);
+  return hopSequenceRecurse(0, trace);
 }
 
 function latency(fromNode: NodePath, toNode: NodePath): number {
@@ -95,24 +98,21 @@ function latency(fromNode: NodePath, toNode: NodePath): number {
   return 100;
 }
 
-function hopSequenceRecurse(
-  start: number,
-  nodePath: NodePath,
-  proc: ProcessNode,
-): Hop[] {
+function hopSequenceRecurse(start: number, trace: TraceNode): Hop[] {
+  const proc = trace.process;
+  const nodePath = trace.nodePath;
   switch (proc.type) {
     case "Parallel":
       return proc.children.flatMap(child =>
-        hopSequenceRecurse(start, nodePath, child),
+        hopSequenceRecurse(start, { nodePath, process: child }),
       );
     case "RPC":
       const hopLatency = latency(nodePath, proc.remoteTrace.nodePath);
       const remoteNodePath = proc.remoteTrace.nodePath;
-      const remoteHops = hopSequenceRecurse(
-        start + hopLatency,
-        remoteNodePath,
-        proc.remoteTrace.process,
-      );
+      const remoteHops = hopSequenceRecurse(start + hopLatency, {
+        nodePath: remoteNodePath,
+        process: proc.remoteTrace.process,
+      });
       const remoteHopsDone = max(remoteHops.map(h => h.end));
       return [
         {
@@ -120,7 +120,7 @@ function hopSequenceRecurse(
           to: remoteNodePath,
           start: start,
           end: start + hopLatency,
-          procNode: proc,
+          traceNode: trace,
         },
         ...remoteHops,
         {
@@ -128,7 +128,7 @@ function hopSequenceRecurse(
           to: nodePath,
           start: remoteHopsDone,
           end: remoteHopsDone + hopLatency,
-          procNode: proc,
+          traceNode: trace,
         },
       ];
     case "Leaf":
@@ -138,7 +138,7 @@ function hopSequenceRecurse(
           to: nodePath,
           start: start,
           end: start + proc.duration,
-          procNode: proc,
+          traceNode: trace,
         },
       ];
   }

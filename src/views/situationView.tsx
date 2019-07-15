@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ProcessNode, Situation, SQLWrite } from "../model";
+import { ProcessNode, Situation, SQLWrite, TraceNode } from "../model";
 import { ConfigurationView } from "./configurationMatrix";
 import { traceForSQLWrite } from "../readWrite";
 import { hopSequenceForTrace, HopSequenceView } from "./hopSequence";
@@ -35,7 +35,7 @@ function WriteView(props: {
   situation: Situation;
   write: { desc: React.ReactNode; write: SQLWrite };
 }) {
-  const [highlightedProc, setHighlightedProc] = useState<ProcessNode>();
+  const [highlightedTrace, setHighlightedTrace] = useState<TraceNode>();
 
   const trace = collapseTrace(
     traceForSQLWrite(props.situation, props.write.write),
@@ -44,16 +44,17 @@ function WriteView(props: {
   return (
     <>
       <h5>{props.write.desc}</h5>
+      <WriteDesc write={props.write.write} />
       <HopSequenceView
         formation={props.situation.config.formation}
         sequence={hopSequence}
-        highlightedProc={highlightedProc}
-        setHighlightedProc={setHighlightedProc}
+        highlightedTrace={highlightedTrace}
+        setHighlightedTrace={setHighlightedTrace}
       />
       <TraceView
         trace={trace}
-        highlightedProc={highlightedProc}
-        setHighlightedProc={setHighlightedProc}
+        highlightedTrace={highlightedTrace}
+        setHighlightedTrace={setHighlightedTrace}
       />
     </>
   );

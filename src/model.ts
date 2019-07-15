@@ -92,7 +92,7 @@ export interface Hop {
   to: NodePath;
   start: number;
   end: number;
-  procNode: ProcessNode;
+  traceNode: TraceNode;
 }
 
 // helper funcs
