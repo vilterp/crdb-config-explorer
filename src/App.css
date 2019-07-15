@@ -102,3 +102,13 @@
 .hop-seq .hop-desc.hop-desc-hovered {
   color: red;
 }
+
+/* trace */
+
+.trace-view .trace-node {
+  cursor: pointer;
+}
+
+.trace-view .trace-node.trace-node-highlighted {
+  color: red;
+}

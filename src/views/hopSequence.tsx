@@ -1,8 +1,15 @@
 import * as React from "react";
-import { Formation, HopSequence, nodePathsForFormation } from "../model";
+import {
+  Formation,
+  Hop,
+  HopSequence,
+  NodePath,
+  nodePathsForFormation,
+  ProcessNode,
+  TraceNode,
+} from "../model";
 import { max } from "../arrays";
 import classNames from "classnames";
-import { useState } from "react";
 
 const HORIZ_SPACING_PX = 30;
 const LEFT_PADDING = 20;
@@ -11,10 +18,10 @@ const NODE_LINES_START = 30;
 export function HopSequenceView(props: {
   formation: Formation;
   sequence: HopSequence;
+  highlightedProc: ProcessNode | undefined;
+  setHighlightedProc: (hp: ProcessNode | undefined) => void;
 }) {
-  const [hoveredHopIdx, setHoveredHop] = useState<number | null>(null);
-
-  const maxTime = max(props.sequence.hops.map(h => yForTime(h.end)));
+  const maxTime = max(props.sequence.map(h => yForTime(h.end)));
   const linesHeight = yForTime(maxTime);
   return (
     <div className="hop-seq">
@@ -39,17 +46,22 @@ export function HopSequenceView(props: {
           })}
         </g>
         <g>
-          {props.sequence.hops.map((hop, idx) => (
+          {props.sequence.map((hop, idx) => (
             <line
               key={idx}
               className={classNames("hop-line", {
                 "hop-line-cross-region":
                   hop.from.regionName !== hop.to.regionName,
-                "hop-line-hovered": idx === hoveredHopIdx,
+                // TODO: use just ===...
+                //   I can't tell why object identity is being lost...
+                //   sigh
+                "hop-line-hovered":
+                  JSON.stringify(hop.procNode) ===
+                  JSON.stringify(props.highlightedProc),
               })}
               // TODO: these are very thin and hard to mouse over...
-              onMouseOver={() => setHoveredHop(idx)}
-              onMouseOut={() => setHoveredHop(null)}
+              onMouseOver={() => props.setHighlightedProc(hop.procNode)}
+              onMouseOut={() => props.setHighlightedProc(undefined)}
               x1={xForNode(hop.from.nodeID)}
               x2={xForNode(hop.to.nodeID)}
               y1={yForTime(hop.start)}
@@ -58,20 +70,6 @@ export function HopSequenceView(props: {
           ))}
         </g>
       </svg>
-      <ol>
-        {props.sequence.hops.map((hop, idx) => (
-          <li
-            key={idx}
-            className={classNames("hop-desc", {
-              "hop-desc-hovered": idx === hoveredHopIdx,
-            })}
-            onMouseOver={() => setHoveredHop(idx)}
-            onMouseOut={() => setHoveredHop(null)}
-          >
-            {hop.desc}
-          </li>
-        ))}
-      </ol>
     </div>
   );
 }
@@ -83,4 +81,65 @@ function xForNode(nodeID: number): number {
 
 function yForTime(time: number): number {
   return NODE_LINES_START + time;
+}
+
+export function hopSequenceForTrace(trace: TraceNode): Hop[] {
+  return hopSequenceRecurse(0, trace.nodePath, trace.process);
+}
+
+function latency(fromNode: NodePath, toNode: NodePath): number {
+  // TODO: more realistic...
+  if (fromNode.regionName === toNode.regionName) {
+    return 10;
+  }
+  return 100;
+}
+
+function hopSequenceRecurse(
+  start: number,
+  nodePath: NodePath,
+  proc: ProcessNode,
+): Hop[] {
+  switch (proc.type) {
+    case "Parallel":
+      return proc.children.flatMap(child =>
+        hopSequenceRecurse(start, nodePath, child),
+      );
+    case "RPC":
+      const hopLatency = latency(nodePath, proc.remoteTrace.nodePath);
+      const remoteNodePath = proc.remoteTrace.nodePath;
+      const remoteHops = hopSequenceRecurse(
+        start + hopLatency,
+        remoteNodePath,
+        proc.remoteTrace.process,
+      );
+      const remoteHopsDone = max(remoteHops.map(h => h.end));
+      return [
+        {
+          from: nodePath,
+          to: remoteNodePath,
+          start: start,
+          end: start + hopLatency,
+          procNode: proc,
+        },
+        ...remoteHops,
+        {
+          from: remoteNodePath,
+          to: nodePath,
+          start: remoteHopsDone,
+          end: remoteHopsDone + hopLatency,
+          procNode: proc,
+        },
+      ];
+    case "Leaf":
+      return [
+        {
+          from: nodePath,
+          to: nodePath,
+          start: start,
+          end: start + proc.duration,
+          procNode: proc,
+        },
+      ];
+  }
 }

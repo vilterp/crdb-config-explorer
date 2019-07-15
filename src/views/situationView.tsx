@@ -1,8 +1,8 @@
 import * as React from "react";
-import { Situation, SQLWrite } from "../model";
+import { ProcessNode, Situation, SQLWrite } from "../model";
 import { ConfigurationView } from "./configurationMatrix";
-import { hopSequenceForSQLWrite, traceForSQLWrite } from "../readWrite";
-import { HopSequenceView } from "./hopSequence";
+import { traceForSQLWrite } from "../readWrite";
+import { hopSequenceForTrace, HopSequenceView } from "./hopSequence";
 import { useState } from "react";
 import { collapseTrace, TraceView } from "./traceView";
 
@@ -22,28 +22,39 @@ export function SituationView(props: {
       {props.writes.length > 0 && (
         <>
           <h4>Simulated Writes</h4>
-          {props.writes.map((write, idx) => {
-            const hopSequence = hopSequenceForSQLWrite(
-              props.situation,
-              write.write,
-            );
-            const trace = collapseTrace(
-              traceForSQLWrite(props.situation, write.write),
-            );
-            return (
-              <div key={idx}>
-                <h5>{write.desc}</h5>
-                <WriteDesc write={write.write} />
-                <TraceView trace={trace} />
-                {/*<HopSequenceView*/}
-                {/*  formation={props.situation.config.formation}*/}
-                {/*  sequence={hopSequence}*/}
-                {/*/>*/}
-              </div>
-            );
-          })}
+          {props.writes.map((write, idx) => (
+            <WriteView key={idx} situation={props.situation} write={write} />
+          ))}
         </>
       )}
+    </>
+  );
+}
+
+function WriteView(props: {
+  situation: Situation;
+  write: { desc: React.ReactNode; write: SQLWrite };
+}) {
+  const [highlightedProc, setHighlightedProc] = useState<ProcessNode>();
+
+  const trace = collapseTrace(
+    traceForSQLWrite(props.situation, props.write.write),
+  );
+  const hopSequence = hopSequenceForTrace(trace);
+  return (
+    <>
+      <h5>{props.write.desc}</h5>
+      <HopSequenceView
+        formation={props.situation.config.formation}
+        sequence={hopSequence}
+        highlightedProc={highlightedProc}
+        setHighlightedProc={setHighlightedProc}
+      />
+      <TraceView
+        trace={trace}
+        highlightedProc={highlightedProc}
+        setHighlightedProc={setHighlightedProc}
+      />
     </>
   );
 }

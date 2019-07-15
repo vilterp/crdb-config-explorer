@@ -55,46 +55,44 @@ export interface ZoneConfig {
 // Traces & Hops
 
 export interface TraceNode {
-  nodeID: number;
+  nodePath: NodePath;
   process: ProcessNode;
 }
 
 export type ProcessNode =
   | { type: "Parallel"; children: ProcessNode[] }
-  | { type: "Sequence"; children: ProcessNode[] }
-  | { type: "Leaf"; desc: string }
+  // | { type: "Sequence"; children: ProcessNode[] }
+  | { type: "Leaf"; desc: string; duration: number }
   | { type: "RPC"; remoteTrace: TraceNode; desc: string };
 
-export function Seq(children: ProcessNode[]): ProcessNode {
-  return { type: "Sequence", children };
-}
+// export function Seq(children: ProcessNode[]): ProcessNode {
+//   return { type: "Sequence", children };
+// }
 
 export function Par(children: ProcessNode[]): ProcessNode {
   return { type: "Parallel", children };
 }
 
-export function Leaf(desc: string): ProcessNode {
-  return { type: "Leaf", desc };
+export function Leaf(desc: string, duration: number): ProcessNode {
+  return { type: "Leaf", desc, duration };
 }
 
 export function RPC(
-  nodeID: number,
+  nodePath: NodePath,
   desc: string,
   process: ProcessNode,
 ): ProcessNode {
-  return { type: "RPC", desc, remoteTrace: { nodeID, process } };
+  return { type: "RPC", desc, remoteTrace: { nodePath, process } };
 }
 
-export interface HopSequence {
-  hops: Hop[];
-}
+export type HopSequence = Hop[];
 
 export interface Hop {
   from: NodePath;
   to: NodePath;
   start: number;
   end: number;
-  desc: React.ReactNode;
+  procNode: ProcessNode;
 }
 
 // helper funcs

@@ -1,6 +1,4 @@
 import {
-  Hop,
-  HopSequence,
   KVWrite,
   Leaf,
   nodeForID,
@@ -15,15 +13,22 @@ import {
   TraceNode,
 } from "./model";
 import { allocate } from "./allocate";
-import { filterMap, min } from "./arrays";
+import { filterMap } from "./arrays";
 
 export function traceForSQLWrite(
   situation: Situation,
   sqlWrite: SQLWrite,
 ): TraceNode {
   const kvWrites = kvWritesForSQLWrite(situation.config.table, sqlWrite);
+  const gwNodePath = nodeForID(
+    situation.config.formation,
+    sqlWrite.gateWayNodeID,
+  );
+  if (!gwNodePath) {
+    throw new Error("gateway node not found");
+  }
   return {
-    nodeID: sqlWrite.gateWayNodeID,
+    nodePath: gwNodePath,
     process: Par(
       kvWrites.map(kvWrite => {
         const possLHNodes = possibleLeaseholderNodesForKVWrite(
@@ -33,108 +38,18 @@ export function traceForSQLWrite(
         const lhNode = possLHNodes[0];
         const replicaNodes = possLHNodes.slice(1, 3);
         return RPC(
-          lhNode.nodeID,
+          lhNode,
           `request leaseholder to write to index ${kvWrite.indexName}, partition ${kvWrite.partitionName}`,
           Par([
-            Leaf("write data"),
+            Leaf("write data", 1),
             ...replicaNodes.map(rn =>
-              RPC(rn.nodeID, "replicate data to follower", Leaf("write data")),
+              RPC(rn, "replicate data to follower", Leaf("write data", 1)),
             ),
           ]),
         );
       }),
     ),
   };
-}
-
-export function hopSequenceForSQLWrite(
-  situation: Situation,
-  sqlWrite: SQLWrite,
-): HopSequence {
-  // TODO: don't hardcode primary partition... hmmm
-  const kvWrites = kvWritesForSQLWrite(situation.config.table, sqlWrite);
-  return {
-    hops: kvWrites.flatMap(kvWrite => {
-      const gatewayNode = nodeForID(
-        situation.config.formation,
-        sqlWrite.gateWayNodeID,
-      );
-      if (!gatewayNode) {
-        throw new Error("couldn't find gateway node");
-      }
-      const possLHNodes = possibleLeaseholderNodesForKVWrite(
-        situation,
-        kvWrite,
-      );
-      const lhNode = possLHNodes[0];
-      const replicaNodes = possLHNodes.slice(1, 3);
-      const gateWayToLHLatency = latency(gatewayNode, lhNode);
-      const gatewayToLHHop =
-        gatewayNode.nodeID !== lhNode.nodeID
-          ? [
-              {
-                from: gatewayNode,
-                to: lhNode,
-                start: 0,
-                end: gateWayToLHLatency,
-                desc: "request from gateway node to leaseholder",
-              },
-            ]
-          : [];
-      const replHops = replicaNodes.flatMap(replNode => {
-        const replHopLatency = latency(lhNode, replNode);
-        return [
-          {
-            from: lhNode,
-            to: replNode,
-            start: gateWayToLHLatency,
-            end: gateWayToLHLatency + replHopLatency,
-            desc: "request to follower to replicate data",
-          },
-          {
-            from: replNode,
-            to: lhNode,
-            start: gateWayToLHLatency + replHopLatency,
-            end: gateWayToLHLatency + replHopLatency * 2,
-            desc: "response from replicating data to follower",
-          },
-        ];
-      });
-      const replDone = replDoneTimestamp(lhNode, replHops);
-      const lhToGatewayHop =
-        gatewayNode.nodeID !== lhNode.nodeID
-          ? [
-              {
-                from: lhNode,
-                to: gatewayNode,
-                start: replDone,
-                end: replDone + gateWayToLHLatency,
-                desc: "response from leaseholder to gateway node",
-              },
-            ]
-          : [];
-      return [
-        // TODO: there might be no hop if gateway node is leaseholder
-        ...gatewayToLHHop,
-        ...replHops,
-        ...lhToGatewayHop,
-      ];
-    }),
-  };
-}
-
-function replDoneTimestamp(lhNode: NodePath, hops: Hop[]): number {
-  const returnHops = hops.filter(h => h.to === lhNode);
-  const returnDoneTimestamps = returnHops.map(h => h.end);
-  return min(returnDoneTimestamps);
-}
-
-function latency(fromNode: NodePath, toNode: NodePath): number {
-  // TODO: more realistic...
-  if (fromNode.regionName === toNode.regionName) {
-    return 10;
-  }
-  return 100;
 }
 
 function kvWritesForSQLWrite(table: Table, write: SQLWrite): KVWrite[] {

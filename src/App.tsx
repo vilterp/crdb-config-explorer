@@ -34,7 +34,16 @@ function App() {
           },
           downNodeIDs: [],
         }}
-        writes={[]}
+        writes={[
+          {
+            desc: "simple write",
+            write: {
+              gateWayNodeID: 1,
+              tableName: "users",
+              partitionName: "default",
+            },
+          },
+        ]}
       />
 
       <h3>Basic Production</h3>
