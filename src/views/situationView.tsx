@@ -91,7 +91,7 @@ function WriteDesc(props: {
         }
       >
         {partitionNames.map(pn => (
-          <option>{pn}</option>
+          <option key={pn}>{pn}</option>
         ))}
       </select>
       :

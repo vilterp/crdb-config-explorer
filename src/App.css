@@ -113,6 +113,14 @@ a:hover {
   color: red;
 }
 
+.hop-seq .time-indicator-tick {
+  stroke: black;
+}
+
+.hop-seq .time-indicator-label {
+  font-size: 12px;
+}
+
 /* trace */
 
 .trace-view .trace-node {

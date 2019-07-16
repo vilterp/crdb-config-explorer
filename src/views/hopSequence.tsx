@@ -12,7 +12,7 @@ import { max } from "../arrays";
 import classNames from "classnames";
 
 const HORIZ_SPACING_PX = 30;
-const LEFT_PADDING = 20;
+const HOPS_LEFT_PADDING = 30;
 const NODE_LINES_START = 30;
 
 export function HopSequenceView(props: {
@@ -23,11 +23,12 @@ export function HopSequenceView(props: {
   write: SQLWrite;
   setWrite: (w: SQLWrite) => void;
 }) {
-  const maxTime = max(props.sequence.map(h => yForTime(h.end)));
+  const maxTime = max(props.sequence.map(h => h.end));
   const linesHeight = yForTime(maxTime);
+  const timeIndTime = maxTime;
   return (
     <div className="hop-seq">
-      <svg height={linesHeight}>
+      <svg height={linesHeight + 20} width={500}>
         <g>
           {nodePathsForFormation(props.formation).map(nodePath => {
             const x = xForNode(nodePath.nodeID);
@@ -81,6 +82,23 @@ export function HopSequenceView(props: {
             />
           ))}
         </g>
+        {/* time indicator */}
+        <g className="time-indicator">
+          <line
+            className="time-indicator-tick"
+            x1={HOPS_LEFT_PADDING + 10}
+            x2={HOPS_LEFT_PADDING + 20}
+            y1={yForTime(timeIndTime)}
+            y2={yForTime(timeIndTime)}
+          />
+          <text
+            className="time-indicator-label"
+            x={5}
+            y={yForTime(maxTime) + 3}
+          >
+            ~{maxTime}ms
+          </text>
+        </g>
       </svg>
     </div>
   );
@@ -88,7 +106,7 @@ export function HopSequenceView(props: {
 
 // relies on nodeIDs increasing from left to right
 function xForNode(nodeID: number): number {
-  return nodeID * HORIZ_SPACING_PX + LEFT_PADDING;
+  return nodeID * HORIZ_SPACING_PX + HOPS_LEFT_PADDING;
 }
 
 function yForTime(time: number): number {
@@ -101,6 +119,9 @@ export function hopSequenceForTrace(trace: TraceNode): Hop[] {
 
 function latency(fromNode: NodePath, toNode: NodePath): number {
   // TODO: more realistic...
+  if (fromNode.nodeID === toNode.nodeID) {
+    return 0;
+  }
   if (fromNode.regionName === toNode.regionName) {
     return 10;
   }
