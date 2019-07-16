@@ -10,7 +10,6 @@
     "@types/react-dom": "16.8.4",
     "@types/react-router-dom": "^4.3.4",
     "classnames": "^2.2.6",
-    "gh-pages": "^2.0.1",
     "lodash": "^4.17.14",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -43,6 +42,5 @@
   },
   "devDependencies": {
     "prettier": "^1.18.2"
-  },
-  "homepage": "https://vilterp.github.io/crdb-config-explorer"
+  }
 }
