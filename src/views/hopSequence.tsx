@@ -5,7 +5,7 @@ import {
   HopSequence,
   NodePath,
   nodePathsForFormation,
-  ProcessNode,
+  SQLWrite,
   TraceNode,
 } from "../model";
 import { max } from "../arrays";
@@ -20,6 +20,8 @@ export function HopSequenceView(props: {
   sequence: HopSequence;
   highlightedTrace: TraceNode | undefined;
   setHighlightedTrace: (hp: TraceNode | undefined) => void;
+  write: SQLWrite;
+  setWrite: (w: SQLWrite) => void;
 }) {
   const maxTime = max(props.sequence.map(h => yForTime(h.end)));
   const linesHeight = yForTime(maxTime);
@@ -31,7 +33,17 @@ export function HopSequenceView(props: {
             const x = xForNode(nodePath.nodeID);
             return (
               <g key={nodePath.nodeID}>
-                <text x={x - 10} y={20} className="node-label">
+                <text
+                  className="node-label"
+                  x={x - 10}
+                  y={20}
+                  onClick={() =>
+                    props.setWrite({
+                      ...props.write,
+                      gateWayNodeID: nodePath.nodeID,
+                    })
+                  }
+                >
                   n{nodePath.nodeID}
                 </text>
                 <line

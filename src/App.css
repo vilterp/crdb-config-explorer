@@ -81,6 +81,7 @@
 
 .hop-seq .node-label {
   fill: black;
+  cursor: pointer;
 }
 
 .hop-seq .node-line {

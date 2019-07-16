@@ -1,5 +1,11 @@
 import * as React from "react";
-import { ProcessNode, Situation, SQLWrite, TraceNode } from "../model";
+import {
+  Configuration,
+  nodesInFormation,
+  Situation,
+  SQLWrite,
+  TraceNode,
+} from "../model";
 import { ConfigurationView } from "./configurationMatrix";
 import { traceForSQLWrite } from "../readWrite";
 import { hopSequenceForTrace, HopSequenceView } from "./hopSequence";
@@ -35,19 +41,24 @@ function WriteView(props: {
   situation: Situation;
   write: { desc: React.ReactNode; write: SQLWrite };
 }) {
+  const [write, setWrite] = useState<SQLWrite>(props.write.write);
   const [highlightedTrace, setHighlightedTrace] = useState<TraceNode>();
 
-  const trace = collapseTrace(
-    traceForSQLWrite(props.situation, props.write.write),
-  );
+  const trace = collapseTrace(traceForSQLWrite(props.situation, write));
   const hopSequence = hopSequenceForTrace(trace);
   return (
     <>
       <h5>{props.write.desc}</h5>
-      <WriteDesc write={props.write.write} />
+      <WriteDesc
+        write={write}
+        setWrite={setWrite}
+        config={props.situation.config}
+      />
       <HopSequenceView
         formation={props.situation.config.formation}
         sequence={hopSequence}
+        write={write}
+        setWrite={setWrite}
         highlightedTrace={highlightedTrace}
         setHighlightedTrace={setHighlightedTrace}
       />
@@ -60,13 +71,30 @@ function WriteView(props: {
   );
 }
 
-function WriteDesc(props: { write: SQLWrite }) {
+function WriteDesc(props: {
+  write: SQLWrite;
+  setWrite: (w: SQLWrite) => void;
+  config: Configuration;
+}) {
   const write = props.write;
+  const partitionNames = props.config.table.indexes[0].partitions.map(
+    p => p.name,
+  );
   return (
     <p>
-      Write from node <strong>n{write.gateWayNodeID}</strong> to table{" "}
+      Write from node <strong>n{props.write.gateWayNodeID}</strong> to table{" "}
       <strong>{write.tableName}</strong>, partition{" "}
-      <strong>{write.partitionName}</strong>:
+      <select
+        value={write.partitionName}
+        onChange={evt =>
+          props.setWrite({ ...props.write, partitionName: evt.target.value })
+        }
+      >
+        {partitionNames.map(pn => (
+          <option>{pn}</option>
+        ))}
+      </select>
+      :
     </p>
   );
 }

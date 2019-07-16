@@ -101,6 +101,10 @@ export function numNodesInFormation(f: Formation): number {
   return f.regions.reduce((sum, region) => sum + numNodesInRegion(region), 0);
 }
 
+export function nodesInFormation(f: Formation): Node[] {
+  return f.regions.flatMap(r => nodesInRegion(r));
+}
+
 export function numNodesInRegion(reg: Region): number {
   return reg.azs.reduce((sum, az) => sum + numNodesInAZ(az), 0);
 }
