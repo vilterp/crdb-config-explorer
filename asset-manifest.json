@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/crdb-config-explorer/static/css/main.8a76bbcb.chunk.css",
+    "main.js": "/crdb-config-explorer/static/js/main.b080e990.chunk.js",
+    "main.js.map": "/crdb-config-explorer/static/js/main.b080e990.chunk.js.map",
+    "runtime~main.js": "/crdb-config-explorer/static/js/runtime~main.dd9ee3e5.js",
+    "runtime~main.js.map": "/crdb-config-explorer/static/js/runtime~main.dd9ee3e5.js.map",
+    "static/js/2.3ebc46d5.chunk.js": "/crdb-config-explorer/static/js/2.3ebc46d5.chunk.js",
+    "static/js/2.3ebc46d5.chunk.js.map": "/crdb-config-explorer/static/js/2.3ebc46d5.chunk.js.map",
+    "index.html": "/crdb-config-explorer/index.html",
+    "precache-manifest.f8a0cecfe8268af1d48232a3c96d91d2.js": "/crdb-config-explorer/precache-manifest.f8a0cecfe8268af1d48232a3c96d91d2.js",
+    "service-worker.js": "/crdb-config-explorer/service-worker.js",
+    "static/css/main.8a76bbcb.chunk.css.map": "/crdb-config-explorer/static/css/main.8a76bbcb.chunk.css.map"
+  }
+}
