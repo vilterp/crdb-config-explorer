@@ -25,21 +25,23 @@ export function ConfigurationView(props: {
   config: Configuration;
   downNodeIDs: number[];
   setDownNodeIDs: (nowDown: number[]) => void;
+  omitLabels?: boolean;
 }) {
   const table = props.config.table;
+  const labels = !props.omitLabels;
 
   return (
     <table className="config-view">
       <thead>
         <tr>
           <td />
-          <td className="schema-level-label">Table</td>
-          <td className="schema-level-label">Index</td>
-          <td className="schema-level-label">Partition</td>
+          <td className="schema-level-label">{labels && "Table"}</td>
+          <td className="schema-level-label">{labels && "Index"}</td>
+          <td className="schema-level-label">{labels && "Partition"}</td>
           <td colSpan={numNodesInFormation(props.config.formation)} />
         </tr>
         <tr>
-          <th className="formation-level-label">Region</th>
+          <th className="formation-level-label">{labels && "Region"}</th>
           <th colSpan={3} />
           {/* regions */}
           {props.config.formation.regions.map(region => {
@@ -64,7 +66,7 @@ export function ConfigurationView(props: {
           })}
         </tr>
         <tr>
-          <th className="formation-level-label">AZ</th>
+          <th className="formation-level-label">{labels && "AZ"}</th>
           <th colSpan={3} />
           {/* az's */}
           {props.config.formation.regions.map(region =>
@@ -91,7 +93,7 @@ export function ConfigurationView(props: {
           )}
         </tr>
         <tr>
-          <th className="formation-level-label">Node</th>
+          <th className="formation-level-label">{labels && "Node"}</th>
           <td colSpan={3} />
           {/* nodes */}
           {props.config.formation.regions.map(region =>

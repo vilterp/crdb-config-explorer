@@ -202,6 +202,7 @@ function PatternPreview(props: { pattern: Pattern }) {
       </h3>
       <ConfigurationView
         config={props.pattern.situation.config}
+        omitLabels={true}
         downNodeIDs={downNodes}
         setDownNodeIDs={setDownNodes}
       />
