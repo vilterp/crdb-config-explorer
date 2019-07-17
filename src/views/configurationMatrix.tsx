@@ -15,20 +15,28 @@ import {
   partitionsInIndex,
   partitionsInTable,
   SchemaPath,
+  Situation,
   ZoneConfig,
 } from "../model";
 import { allocate, Allocation } from "../allocate";
 import classNames from "classnames";
 import { removeAt, union, without } from "../arrays";
 
-export function ConfigurationView(props: {
-  config: Configuration;
-  downNodeIDs: number[];
-  setDownNodeIDs: (nowDown: number[]) => void;
+export function SituationView(props: {
+  situation: Situation;
+  setSituation: (s: Situation) => void;
   omitLabels?: boolean;
 }) {
-  const table = props.config.table;
+  const table = props.situation.config.table;
   const labels = !props.omitLabels;
+  const config = props.situation.config;
+
+  function setDownNodeIDs(ids: number[]) {
+    props.setSituation({
+      ...props.situation,
+      downNodeIDs: ids,
+    });
+  }
 
   return (
     <table className="config-view">
@@ -38,14 +46,14 @@ export function ConfigurationView(props: {
           <td className="schema-level-label">{labels && "Table"}</td>
           <td className="schema-level-label">{labels && "Index"}</td>
           <td className="schema-level-label">{labels && "Partition"}</td>
-          <td colSpan={numNodesInFormation(props.config.formation)} />
+          <td colSpan={numNodesInFormation(config.formation)} />
         </tr>
         <tr>
           <th className="formation-level-label">{labels && "Region"}</th>
           <th colSpan={3} />
           {/* regions */}
-          {props.config.formation.regions.map(region => {
-            const status = getRegionStatus(region, props.downNodeIDs);
+          {config.formation.regions.map(region => {
+            const status = getRegionStatus(region, props.situation.downNodeIDs);
             return (
               <th
                 key={region.name}
@@ -54,9 +62,9 @@ export function ConfigurationView(props: {
                 onClick={() => {
                   toggleFormationNodeDown(
                     status,
-                    props.downNodeIDs,
+                    props.situation.downNodeIDs,
                     nodesInRegion(region).map(n => n.id),
-                    props.setDownNodeIDs,
+                    setDownNodeIDs,
                   );
                 }}
               >
@@ -69,9 +77,9 @@ export function ConfigurationView(props: {
           <th className="formation-level-label">{labels && "AZ"}</th>
           <th colSpan={3} />
           {/* az's */}
-          {props.config.formation.regions.map(region =>
+          {config.formation.regions.map(region =>
             region.azs.map(az => {
-              const status = getAZStatus(az, props.downNodeIDs);
+              const status = getAZStatus(az, props.situation.downNodeIDs);
               return (
                 <th
                   key={az.name}
@@ -80,9 +88,9 @@ export function ConfigurationView(props: {
                   onClick={() => {
                     toggleFormationNodeDown(
                       status,
-                      props.downNodeIDs,
+                      props.situation.downNodeIDs,
                       az.nodes.map(n => n.id),
-                      props.setDownNodeIDs,
+                      setDownNodeIDs,
                     );
                   }}
                 >
@@ -96,16 +104,16 @@ export function ConfigurationView(props: {
           <th className="formation-level-label">{labels && "Node"}</th>
           <td colSpan={3} />
           {/* nodes */}
-          {props.config.formation.regions.map(region =>
+          {config.formation.regions.map(region =>
             region.azs.map(az =>
               az.nodes.map(node => (
                 <th
                   key={node.id}
                   onClick={() =>
                     toggleNodeDown(
-                      props.downNodeIDs,
+                      props.situation.downNodeIDs,
                       node.id,
-                      props.setDownNodeIDs,
+                      setDownNodeIDs,
                     )
                   }
                   className={classNames(
@@ -113,7 +121,7 @@ export function ConfigurationView(props: {
                     "formation-node-leaf",
                     {
                       "formation-node-fully-down":
-                        props.downNodeIDs.indexOf(node.id) !== -1,
+                        props.situation.downNodeIDs.indexOf(node.id) !== -1,
                     },
                   )}
                 >
@@ -128,13 +136,13 @@ export function ConfigurationView(props: {
         {table.indexes.map((index, indexIdx) =>
           index.partitions.map((partition, partitionIdx) => {
             const schemaPath = {
-              table: props.config.table,
+              table: config.table,
               index: index,
               partition: partition,
             };
             const replStatus = getReplicationStatus(schemaPath, {
-              config: props.config,
-              downNodeIDs: props.downNodeIDs,
+              config: config,
+              downNodeIDs: props.situation.downNodeIDs,
             });
             return (
               <tr key={`${index.name}/${partition.name}`}>
@@ -164,8 +172,8 @@ export function ConfigurationView(props: {
                 >
                   {withZCIndicator(partition.name, partition.zoneConfig)}
                 </td>
-                {nodePathsForFormation(props.config.formation).map(nodePath =>
-                  renderCell(nodePath, schemaPath, props.downNodeIDs),
+                {nodePathsForFormation(config.formation).map(nodePath =>
+                  renderCell(nodePath, schemaPath, props.situation.downNodeIDs),
                 )}
               </tr>
             );

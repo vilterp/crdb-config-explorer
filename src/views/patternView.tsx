@@ -1,29 +1,45 @@
 import * as React from "react";
-import { Configuration, Situation, SQLWrite, TraceNode } from "../model";
-import { ConfigurationView } from "./configurationMatrix";
+import {
+  Configuration,
+  Pattern,
+  Situation,
+  SQLWrite,
+  TraceNode,
+} from "../model";
+import { SituationView } from "./configurationMatrix";
 import { traceForSQLWrite } from "../readWrite";
 import { hopSequenceForTrace, HopSequenceView } from "./hopSequence";
 import { useState } from "react";
 import { collapseTrace, TraceView } from "./traceView";
+import { replaceAtIdx } from "../arrays";
 
-export function SituationView(props: {
-  situation: Situation;
-  writes: { write: SQLWrite; desc: React.ReactNode }[];
+export function PatternView(props: {
+  pattern: Pattern;
+  setPattern: (p: Pattern) => void;
 }) {
-  const [downNodeIDs, setDownNodeIDs] = useState(props.situation.downNodeIDs);
-
   return (
     <>
-      <ConfigurationView
-        config={props.situation.config}
-        downNodeIDs={downNodeIDs}
-        setDownNodeIDs={setDownNodeIDs}
+      <SituationView
+        situation={props.pattern.situation}
+        setSituation={s => {
+          props.setPattern({ ...props.pattern, situation: s });
+        }}
       />
-      {props.writes.length > 0 && (
+      {props.pattern.writes.length > 0 && (
         <>
           <h4>Simulated Writes</h4>
-          {props.writes.map((write, idx) => (
-            <WriteView key={idx} situation={props.situation} write={write} />
+          {props.pattern.writes.map((write, idx) => (
+            <WriteView
+              key={idx}
+              situation={props.pattern.situation}
+              write={write}
+              setWrite={(w) => {
+                props.setPattern({
+                  ...props.pattern,
+                  writes: replaceAtIdx(props.pattern.writes, idx, {write: w, desc: write.desc})
+                })
+              }}
+            />
           ))}
         </>
       )}
@@ -34,25 +50,25 @@ export function SituationView(props: {
 function WriteView(props: {
   situation: Situation;
   write: { desc: React.ReactNode; write: SQLWrite };
+  setWrite: (w: SQLWrite) => void;
 }) {
-  const [write, setWrite] = useState<SQLWrite>(props.write.write);
   const [highlightedTrace, setHighlightedTrace] = useState<TraceNode>();
 
-  const trace = collapseTrace(traceForSQLWrite(props.situation, write));
+  const trace = collapseTrace(traceForSQLWrite(props.situation, props.write.write));
   const hopSequence = hopSequenceForTrace(trace);
   return (
     <>
       <h5>{props.write.desc}</h5>
       <WriteDesc
-        write={write}
-        setWrite={setWrite}
+        write={props.write.write}
+        setWrite={props.setWrite}
         config={props.situation.config}
       />
       <HopSequenceView
         formation={props.situation.config.formation}
         sequence={hopSequence}
-        write={write}
-        setWrite={setWrite}
+        write={props.write.write}
+        setWrite={props.setWrite}
         highlightedTrace={highlightedTrace}
         setHighlightedTrace={setHighlightedTrace}
       />

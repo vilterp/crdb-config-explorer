@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { geoPartitionedReplicas } from "./patterns";
 import { Pattern } from "./model";
-import { SituationView } from "./views/situationView";
+import { PatternView } from "./views/patternView";
+import { Link } from "react-router-dom";
 
 export function PlaygroundPage() {
   const [patternJSONStr, setPatternJSONStr] = useState<string>(
@@ -10,7 +11,13 @@ export function PlaygroundPage() {
 
   return (
     <div className="container">
+      <p>
+        <Link to="/">&lt; Patterns</Link>
+      </p>
+
       <h1>Playground</h1>
+
+      <p>Edit and simulate a pattern, either visually or as JSON.</p>
 
       <table>
         <tbody>
@@ -26,8 +33,11 @@ export function PlaygroundPage() {
                 {patternJSONStr}
               </textarea>
             </td>
-            <td style={{ padding: 20 }}>
-              <PatternOrError res={parsePattern(patternJSONStr)} />
+            <td style={{ paddingLeft: 20 }}>
+              <PatternOrError
+                res={parsePattern(patternJSONStr)}
+                setPattern={p => setPatternJSONStr(JSON.stringify(p, null, 2))}
+              />
             </td>
           </tr>
         </tbody>
@@ -36,16 +46,16 @@ export function PlaygroundPage() {
   );
 }
 
-function PatternOrError(props: { res: Res<Pattern, string> }) {
+function PatternOrError(props: {
+  res: Res<Pattern, string>;
+  setPattern: (p: Pattern) => void;
+}) {
   switch (props.res.type) {
     case "Ok":
       return (
         <>
           <h2>{props.res.res.name}</h2>
-          <SituationView
-            situation={props.res.res.situation}
-            writes={props.res.res.writes}
-          />
+          <PatternView pattern={props.res.res} setPattern={props.setPattern} />
         </>
       );
     case "Err":

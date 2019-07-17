@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { SituationView } from "./views/situationView";
+import { PatternView } from "./views/patternView";
 import { Route, BrowserRouter as Router, Link } from "react-router-dom";
 import "./App.css";
-import { Pattern } from "./model";
-import { ConfigurationView } from "./views/configurationMatrix";
+import { Pattern, Situation } from "./model";
+import { SituationView } from "./views/configurationMatrix";
 import {
   basicProduction,
   development,
@@ -57,33 +57,33 @@ function IndexPage() {
 }
 
 function PatternPreview(props: { pattern: Pattern }) {
-  const [downNodes, setDownNodes] = useState<number[]>([]);
+  const [situation, setSituation] = useState<Situation>(
+    props.pattern.situation,
+  );
   return (
     <>
       <h3>
         <Link to={props.pattern.id}>{props.pattern.name}</Link>
       </h3>
-      <ConfigurationView
-        config={props.pattern.situation.config}
+      <SituationView
+        situation={situation}
+        setSituation={setSituation}
         omitLabels={true}
-        downNodeIDs={downNodes}
-        setDownNodeIDs={setDownNodes}
       />
     </>
   );
 }
 
 function PatternPage(props: { pattern: Pattern }) {
+  const [pattern, setPattern] = useState(props.pattern);
+
   return (
     <div className="container">
       <p>
         <Link to="/">&lt; Patterns</Link>
       </p>
-      <h1>{props.pattern.name}</h1>
-      <SituationView
-        situation={props.pattern.situation}
-        writes={props.pattern.writes}
-      />
+      <h1>{pattern.name}</h1>
+      <PatternView pattern={pattern} setPattern={setPattern} />
     </div>
   );
 }

@@ -63,3 +63,9 @@ export function without<T>(as: T[], without: T[]): T[] {
   });
   return out;
 }
+
+export function replaceAtIdx<T>(arr: T[], idx: number, newVal: T): T[] {
+  const ret = [...arr];
+  ret[idx] = newVal;
+  return ret;
+}
