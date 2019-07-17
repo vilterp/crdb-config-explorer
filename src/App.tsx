@@ -1,188 +1,20 @@
 import React, { useState } from "react";
-import {
-  oneNodePerRegionF,
-  singleNode,
-  threeNodesOneRegion,
-  threeNodesThreeRegions,
-  usersTableDupIndexes,
-  usersTableLeaseholderPartitioned,
-  usersTablePartitioned,
-  usersTableUnPartitioned,
-} from "./configurations";
 import { SituationView } from "./views/situationView";
 import { Route, BrowserRouter as Router, Link } from "react-router-dom";
 import "./App.css";
-import { Situation, SQLWrite } from "./model";
+import { Pattern } from "./model";
 import { ConfigurationView } from "./views/configurationMatrix";
-
-interface Pattern {
-  id: string;
-  name: string;
-  situation: Situation;
-  writes: { desc: string; write: SQLWrite }[];
-}
-
-const development: Pattern = {
-  id: "development",
-  name: "Development",
-  situation: {
-    config: {
-      formation: singleNode,
-      table: usersTableUnPartitioned,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "simple write",
-      write: {
-        gateWayNodeID: 1,
-        tableName: "users",
-        partitionName: "default",
-      },
-    },
-  ],
-};
-
-const basicProduction: Pattern = {
-  id: "basic-production",
-  name: "Basic Production",
-  situation: {
-    config: {
-      formation: threeNodesOneRegion,
-      table: usersTableUnPartitioned,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "",
-      write: {
-        gateWayNodeID: 1,
-        tableName: "users",
-        partitionName: "default",
-      },
-    },
-  ],
-};
-
-const naiveMultiregion: Pattern = {
-  id: "naive-multiregion",
-  name: "Naive Multiregion",
-  situation: {
-    config: {
-      formation: threeNodesThreeRegions,
-      table: usersTableUnPartitioned,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "local write (lucky!)",
-      write: {
-        tableName: "users",
-        partitionName: "default",
-        gateWayNodeID: 3,
-      },
-    },
-    {
-      desc: "non-local write (bad!)",
-      write: {
-        tableName: "users",
-        partitionName: "default",
-        gateWayNodeID: 4,
-      },
-    },
-  ],
-};
-
-const geoPartitionedReplicas: Pattern = {
-  id: "geo-partitioned-replicas",
-  name: "Geo-Partitioned Replicas",
-  situation: {
-    config: {
-      formation: threeNodesThreeRegions,
-      table: usersTablePartitioned,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "Local, partitioned write (good!)",
-      write: {
-        gateWayNodeID: 2,
-        tableName: "users",
-        partitionName: "west",
-      },
-    },
-  ],
-};
-
-const geoPartitionedLeaseholders: Pattern = {
-  id: "geo-partitioned-leaseholders",
-  name: "Geo-Partitioned Leaseholders",
-  situation: {
-    config: {
-      formation: threeNodesThreeRegions,
-      table: usersTableLeaseholderPartitioned,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "",
-      write: {
-        partitionName: "west",
-        tableName: "postal_codes",
-        gateWayNodeID: 2,
-      },
-    },
-  ],
-};
-
-const duplicateIndexes: Pattern = {
-  id: "duplicate-indexes",
-  name: "Duplicate Indexes",
-  situation: {
-    config: {
-      formation: threeNodesThreeRegions,
-      table: usersTableDupIndexes,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "",
-      write: {
-        partitionName: "default",
-        tableName: "postal_codes",
-        gateWayNodeID: 2,
-      },
-    },
-  ],
-};
-
-const oneNodePerRegion: Pattern = {
-  id: "one-node-per-region",
-  name: "One Node Per Region",
-  situation: {
-    config: {
-      table: usersTableUnPartitioned,
-      formation: oneNodePerRegionF,
-    },
-    downNodeIDs: [],
-  },
-  writes: [
-    {
-      desc: "",
-      write: {
-        partitionName: "default",
-        gateWayNodeID: 1,
-        tableName: "users",
-      },
-    },
-  ],
-};
+import {
+  basicProduction,
+  development,
+  duplicateIndexes,
+  geoPartitionedLeaseholders,
+  geoPartitionedReplicas,
+  naiveMultiregion,
+  oneNodePerRegion,
+  PATTERNS,
+} from "./patterns";
+import { PlaygroundPage } from "./playground";
 
 function IndexPage() {
   return (
@@ -216,6 +48,10 @@ function IndexPage() {
       <h2>Anti-Patterns</h2>
 
       <PatternPreview pattern={oneNodePerRegion} />
+
+      <h2>
+        <Link to="/playground">Playground</Link>
+      </h2>
     </div>
   );
 }
@@ -252,20 +88,11 @@ function PatternPage(props: { pattern: Pattern }) {
   );
 }
 
-const PATTERNS = [
-  development,
-  basicProduction,
-  naiveMultiregion,
-  geoPartitionedReplicas,
-  geoPartitionedLeaseholders,
-  duplicateIndexes,
-  oneNodePerRegion,
-];
-
 function App() {
   return (
     <Router>
       <Route path="/" component={IndexPage} exact />
+      <Route path="/playground" component={PlaygroundPage} exact />
       {PATTERNS.map(p => (
         <Route
           key={p.id}

@@ -1,11 +1,5 @@
 import * as React from "react";
-import {
-  Configuration,
-  nodesInFormation,
-  Situation,
-  SQLWrite,
-  TraceNode,
-} from "../model";
+import { Configuration, Situation, SQLWrite, TraceNode } from "../model";
 import { ConfigurationView } from "./configurationMatrix";
 import { traceForSQLWrite } from "../readWrite";
 import { hopSequenceForTrace, HopSequenceView } from "./hopSequence";

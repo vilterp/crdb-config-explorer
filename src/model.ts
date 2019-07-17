@@ -2,6 +2,13 @@ import React from "react";
 import { replicasForSchemaPath } from "./allocate";
 import { intersection } from "./arrays";
 
+export interface Pattern {
+  id: string;
+  name: string;
+  situation: Situation;
+  writes: { desc: string; write: SQLWrite }[];
+}
+
 export interface Situation {
   config: Configuration;
   downNodeIDs: number[];

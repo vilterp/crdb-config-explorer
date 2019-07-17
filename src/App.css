@@ -122,3 +122,9 @@ a:hover {
 .trace-view .trace-node.trace-node-highlighted {
   color: red;
 }
+
+/* playground */
+
+textarea {
+  font-family: monospace;
+}
