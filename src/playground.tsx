@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { geoPartitionedReplicas } from "./patterns";
+import { geoPartitionedReplicas, PATTERNS } from "./patterns";
 import { Pattern } from "./model";
 import { PatternView } from "./views/patternView";
 import { Link } from "react-router-dom";
@@ -7,6 +7,10 @@ import { Link } from "react-router-dom";
 export function PlaygroundPage() {
   const [patternJSONStr, setPatternJSONStr] = useState<string>(
     JSON.stringify(geoPartitionedReplicas, null, 2),
+  );
+
+  const [presetPatternID, setPresetPatternID] = useState(
+    geoPartitionedReplicas.id,
   );
 
   return (
@@ -18,6 +22,28 @@ export function PlaygroundPage() {
       <h1>Playground</h1>
 
       <p>Edit and simulate a pattern, either visually or as JSON.</p>
+
+      <p>
+        Try a preset pattern:{" "}
+        <select
+          value={presetPatternID}
+          onChange={evt => {
+            setPresetPatternID(evt.target.value);
+            setPatternJSONStr(
+              JSON.stringify(
+                PATTERNS.find(p => p.id === evt.target.value) ||
+                  geoPartitionedReplicas,
+                null,
+                2,
+              ),
+            );
+          }}
+        >
+          {PATTERNS.map(p => (
+            <option value={p.id}>{p.name}</option>
+          ))}
+        </select>
+      </p>
 
       <table>
         <tbody>
