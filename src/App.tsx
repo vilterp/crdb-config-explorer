@@ -19,9 +19,13 @@ import { PlaygroundPage } from "./playground";
 function IndexPage() {
   return (
     <>
-      <h1>Topology Patterns Illustration</h1>
+      <h1>Topology Patterns Explorer</h1>
       <p>
-        An alternative illustration of the patterns documented here:{" "}
+        An{" "}
+        <a href="http://worrydream.com/ExplorableExplanations/">
+          explorable explanation
+        </a>{" "}
+        of the patterns documented here:{" "}
         <a href="https://www.cockroachlabs.com/docs/stable/topology-patterns.html">
           Topology Patterns
         </a>
