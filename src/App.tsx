@@ -104,7 +104,7 @@ const geoPartitionedReplicas: Pattern = {
       formation: threeNodesThreeRegions,
       table: usersTablePartitioned,
     },
-    downNodeIDs: [2, 3],
+    downNodeIDs: [],
   },
   writes: [
     {
