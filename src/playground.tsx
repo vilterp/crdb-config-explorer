@@ -14,7 +14,7 @@ export function PlaygroundPage() {
   );
 
   return (
-    <div className="container">
+    <>
       <p>
         <Link to="/">&lt; Patterns</Link>
       </p>
@@ -68,7 +68,7 @@ export function PlaygroundPage() {
           </tr>
         </tbody>
       </table>
-    </div>
+    </>
   );
 }
 

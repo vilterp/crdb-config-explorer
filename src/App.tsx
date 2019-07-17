@@ -18,7 +18,7 @@ import { PlaygroundPage } from "./playground";
 
 function IndexPage() {
   return (
-    <div className="container">
+    <>
       <h1>Topology Patterns Illustration</h1>
       <p>
         An alternative illustration of the patterns documented here:{" "}
@@ -52,7 +52,11 @@ function IndexPage() {
       <h2>
         <Link to="/playground">Playground</Link>
       </h2>
-    </div>
+      <p>
+        Edit a pattern as JSON, so you can try out arbitrary patterns and
+        import/export.
+      </p>
+    </>
   );
 }
 
@@ -78,29 +82,36 @@ function PatternPage(props: { pattern: Pattern }) {
   const [pattern, setPattern] = useState(props.pattern);
 
   return (
-    <div className="container">
+    <>
       <p>
         <Link to="/">&lt; Patterns</Link>
       </p>
       <h1>{pattern.name}</h1>
       <PatternView pattern={pattern} setPattern={setPattern} />
-    </div>
+    </>
   );
 }
 
 function App() {
   return (
-    <Router>
-      <Route path="/" component={IndexPage} exact />
-      <Route path="/playground" component={PlaygroundPage} exact />
-      {PATTERNS.map(p => (
-        <Route
-          key={p.id}
-          path={`/${p.id}`}
-          component={() => <PatternPage pattern={p} />}
-        />
-      ))}
-    </Router>
+    <div className="container">
+      <Router>
+        <Route path="/" component={IndexPage} exact />
+        <Route path="/playground" component={PlaygroundPage} exact />
+        {PATTERNS.map(p => (
+          <Route
+            key={p.id}
+            path={`/${p.id}`}
+            component={() => <PatternPage pattern={p} />}
+          />
+        ))}
+        <p className="disclaimer">
+          Disclaimer: this is a simulator, which uses a very simplified
+          reimplementation of CockroachDB's data distribution logic. Always test
+          with an actual CockroachDB cluster before going to production.
+        </p>
+      </Router>
+    </div>
   );
 }
 
