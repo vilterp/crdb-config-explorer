@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import {
+  oneNodePerRegionF,
   singleNode,
   threeNodesOneRegion,
   threeNodesThreeRegions,
@@ -161,6 +162,28 @@ const duplicateIndexes: Pattern = {
   ],
 };
 
+const oneNodePerRegion: Pattern = {
+  id: "one-node-per-region",
+  name: "One Node Per Region",
+  situation: {
+    config: {
+      table: usersTableUnPartitioned,
+      formation: oneNodePerRegionF,
+    },
+    downNodeIDs: [],
+  },
+  writes: [
+    {
+      desc: "",
+      write: {
+        partitionName: "default",
+        gateWayNodeID: 1,
+        tableName: "users",
+      },
+    },
+  ],
+};
+
 function IndexPage() {
   return (
     <div className="container">
@@ -189,6 +212,10 @@ function IndexPage() {
       <PatternPreview pattern={geoPartitionedLeaseholders} />
 
       <PatternPreview pattern={duplicateIndexes} />
+
+      <h2>Anti-Patterns</h2>
+
+      <PatternPreview pattern={oneNodePerRegion} />
     </div>
   );
 }
@@ -232,6 +259,7 @@ const PATTERNS = [
   geoPartitionedReplicas,
   geoPartitionedLeaseholders,
   duplicateIndexes,
+  oneNodePerRegion,
 ];
 
 function App() {

@@ -11,13 +11,13 @@ export const singleNode: Formation = {
           name: "N/A",
           nodes: [
             {
-              id: 1
-            }
-          ]
-        }
-      ]
-    }
-  ]
+              id: 1,
+            },
+          ],
+        },
+      ],
+    },
+  ],
 };
 
 export const threeNodesOneRegion: Formation = {
@@ -28,12 +28,12 @@ export const threeNodesOneRegion: Formation = {
         name: az,
         nodes: [
           {
-            id: idx + 1
-          }
-        ]
-      }))
-    }
-  ]
+            id: idx + 1,
+          },
+        ],
+      })),
+    },
+  ],
 };
 
 export const threeNodesThreeRegions: Formation = {
@@ -43,11 +43,27 @@ export const threeNodesThreeRegions: Formation = {
       name: azName,
       nodes: [
         {
-          id: regIdx * 3 + azIdx + 1
-        }
-      ]
-    }))
-  }))
+          id: regIdx * 3 + azIdx + 1,
+        },
+      ],
+    })),
+  })),
+};
+
+export const oneNodePerRegionF: Formation = {
+  regions: ["us-west", "us-central", "us-east"].map((regName, regIdx) => ({
+    name: regName,
+    azs: [
+      {
+        name: "a",
+        nodes: [
+          {
+            id: regIdx + 1,
+          },
+        ],
+      },
+    ],
+  })),
 };
 
 // TABLES
@@ -57,9 +73,9 @@ export const usersTableUnPartitioned: Table = {
   indexes: [
     {
       name: "primary",
-      partitions: [{ name: "default" }]
-    }
-  ]
+      partitions: [{ name: "default" }],
+    },
+  ],
 };
 
 export const usersTablePartitioned: Table = {
@@ -70,19 +86,19 @@ export const usersTablePartitioned: Table = {
       partitions: [
         {
           name: "west",
-          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-west" }
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-west" },
         },
         {
           name: "central",
-          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-central" }
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-central" },
         },
         {
           name: "east",
-          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-east" }
-        }
-      ]
-    }
-  ]
+          zoneConfig: { leaseholdersRegion: null, dataRegion: "us-east" },
+        },
+      ],
+    },
+  ],
 };
 
 export const usersTableLeaseholderPartitioned: Table = {
@@ -93,19 +109,19 @@ export const usersTableLeaseholderPartitioned: Table = {
       partitions: [
         {
           name: "west",
-          zoneConfig: { leaseholdersRegion: "us-west", dataRegion: null }
+          zoneConfig: { leaseholdersRegion: "us-west", dataRegion: null },
         },
         {
           name: "central",
-          zoneConfig: { leaseholdersRegion: "us-central", dataRegion: null }
+          zoneConfig: { leaseholdersRegion: "us-central", dataRegion: null },
         },
         {
           name: "east",
-          zoneConfig: { leaseholdersRegion: "us-east", dataRegion: null }
-        }
-      ]
-    }
-  ]
+          zoneConfig: { leaseholdersRegion: "us-east", dataRegion: null },
+        },
+      ],
+    },
+  ],
 };
 
 export const usersTableDupIndexes: Table = {
@@ -113,6 +129,6 @@ export const usersTableDupIndexes: Table = {
   indexes: ["us-west", "us-central", "us-east"].map(region => ({
     name: region,
     zoneConfig: { dataRegion: null, leaseholdersRegion: region },
-    partitions: [{ name: "default" }]
-  }))
+    partitions: [{ name: "default" }],
+  })),
 };
