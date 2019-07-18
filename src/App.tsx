@@ -25,7 +25,7 @@ function IndexPage() {
         <a href="http://worrydream.com/ExplorableExplanations/">
           explorable explanation
         </a>{" "}
-        of the patterns documented here:{" "}
+        of the patterns documented here for deploying CockroachDB:{" "}
         <a href="https://www.cockroachlabs.com/docs/stable/topology-patterns.html">
           Topology Patterns
         </a>
