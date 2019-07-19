@@ -6,6 +6,7 @@ import {
   QuestionNode,
   TopologyPatternDesc,
 } from "../decisionTree";
+import { Link } from "react-router-dom";
 
 export function DecisionTreeView(props: {
   tree: DecisionNode<TopologyPatternDesc>;
@@ -52,6 +53,9 @@ function AnswerView(props: { answer: AnswerNode<TopologyPatternDesc> }) {
     <>
       <h2>{patternDesc.name}</h2>
       <p>{patternDesc.explanation}</p>
+      <p>
+        <Link to={`/pattern/${patternDesc.id}`}>Simulate &gt;</Link>
+      </p>
     </>
   );
 }

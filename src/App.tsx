@@ -78,7 +78,7 @@ function PatternPreview(props: { pattern: Pattern }) {
   return (
     <>
       <h3>
-        <Link to={props.pattern.id}>{props.pattern.name}</Link>
+        <Link to={`/pattern/${props.pattern.id}`}>{props.pattern.name}</Link>
       </h3>
       <SituationView
         situation={situation}
@@ -118,7 +118,7 @@ function App() {
         {PATTERNS.map(p => (
           <Route
             key={p.id}
-            path={`/${p.id}`}
+            path={`/pattern/${p.id}`}
             component={() => <PatternPage pattern={p} />}
           />
         ))}
