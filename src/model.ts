@@ -1,4 +1,3 @@
-import React from "react";
 import { replicasForSchemaPath } from "./allocate";
 import { intersection } from "./arrays";
 

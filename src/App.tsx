@@ -15,6 +15,7 @@ import {
   PATTERNS,
 } from "./patterns";
 import { PlaygroundPage } from "./playground";
+import { DecisionTreePage } from "./decisionTreePage";
 
 function IndexPage() {
   return (
@@ -30,6 +31,12 @@ function IndexPage() {
           Topology Patterns
         </a>
         .
+      </p>
+
+      <h2>Decision Tree</h2>
+      <p>
+        Not sure where to start? Go through the{" "}
+        <Link to="/decision-tree">decision tree</Link>.
       </p>
 
       <h2>Single-Region Patterns</h2>
@@ -92,6 +99,11 @@ function PatternPage(props: { pattern: Pattern }) {
       </p>
       <h1>{pattern.name}</h1>
       <PatternView pattern={pattern} setPattern={setPattern} />
+      <p className="disclaimer">
+        Disclaimer: this is a simulator, which uses a very simplified
+        reimplementation of CockroachDB's data distribution logic. Always test
+        with an actual CockroachDB cluster before going to production.
+      </p>
     </>
   );
 }
@@ -102,6 +114,7 @@ function App() {
       <Router>
         <Route path="/" component={IndexPage} exact />
         <Route path="/playground" component={PlaygroundPage} exact />
+        <Route path="/decision-tree" component={DecisionTreePage} />
         {PATTERNS.map(p => (
           <Route
             key={p.id}
@@ -109,11 +122,6 @@ function App() {
             component={() => <PatternPage pattern={p} />}
           />
         ))}
-        <p className="disclaimer">
-          Disclaimer: this is a simulator, which uses a very simplified
-          reimplementation of CockroachDB's data distribution logic. Always test
-          with an actual CockroachDB cluster before going to production.
-        </p>
       </Router>
     </div>
   );
