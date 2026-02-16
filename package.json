@@ -3,21 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@types/classnames": "^2.2.9",
-    "@types/node": "^20.11.0",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/node": "^22.10.7",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7",
     "@types/react-router-dom": "^5.3.3",
-    "classnames": "^2.2.6",
-    "lodash": "^4.17.21",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "classnames": "^2.5.1",
+    "lodash": "^4.17.23",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^5.3.4",
-    "typescript": "^5.3.0"
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "start": "esbuild src/index.tsx --bundle --outdir=public/build --servedir=public --serve=3000 --watch",
     "build": "rm -rf build && mkdir -p build && cp -r public/* build/ && esbuild src/index.tsx --bundle --outdir=build/build --minify --sourcemap"
+  },
+  "resolutions": {
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7"
   },
   "browserslist": {
     "production": [
@@ -32,7 +35,7 @@
     ]
   },
   "devDependencies": {
-    "esbuild": "^0.27.0",
-    "prettier": "^3.2.0"
+    "esbuild": "^0.27.3",
+    "prettier": "^3.8.1"
   }
 }

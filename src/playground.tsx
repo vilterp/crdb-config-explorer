@@ -101,7 +101,7 @@ function parsePattern(jsonStr: string): Res<Pattern, string> {
   try {
     situ = JSON.parse(jsonStr);
   } catch (e) {
-    return { type: "Err", err: e.toString() };
+    return { type: "Err", err: String(e) };
   }
   // TODO: validate the situation
   return { type: "Ok", res: situ };
