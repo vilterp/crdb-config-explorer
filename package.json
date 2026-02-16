@@ -17,9 +17,7 @@
   },
   "scripts": {
     "start": "esbuild src/index.tsx --bundle --outdir=public/build --servedir=public --serve=3000 --watch",
-    "build": "rm -rf build && mkdir -p build && cp -r public/* build/ && esbuild src/index.tsx --bundle --outdir=build/build --minify --sourcemap",
-    "predeploy": "yarn run build",
-    "deploy": "gh-pages -d build"
+    "build": "rm -rf build && mkdir -p build && cp -r public/* build/ && esbuild src/index.tsx --bundle --outdir=build/build --minify --sourcemap"
   },
   "browserslist": {
     "production": [
