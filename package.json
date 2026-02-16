@@ -19,18 +19,6 @@
     "start": "esbuild src/index.tsx --bundle --outdir=public/build --servedir=public --serve=3000 --watch",
     "build": "rm -rf build && mkdir -p build && cp -r public/* build/ && esbuild src/index.tsx --bundle --outdir=build/build --minify --sourcemap"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
     "esbuild": "^0.27.0",
     "prettier": "^3.2.0"
