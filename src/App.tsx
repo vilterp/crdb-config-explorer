@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { PatternView } from "./views/patternView";
 import { Route, BrowserRouter as Router, Link } from "react-router-dom";
 import "./App.css";

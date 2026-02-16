@@ -1,4 +1,3 @@
-import React from "react";
 import { DecisionTreeView } from "./views/decisionTree";
 import { DECISION_TREE } from "./decisionTree";
 import { Link } from "react-router-dom";

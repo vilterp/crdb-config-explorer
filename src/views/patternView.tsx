@@ -1,4 +1,4 @@
-import * as React from "react";
+import { ReactNode } from "react";
 import {
   Configuration,
   Pattern,
@@ -49,7 +49,7 @@ export function PatternView(props: {
 
 function WriteView(props: {
   situation: Situation;
-  write: { desc: React.ReactNode; write: SQLWrite };
+  write: { desc: ReactNode; write: SQLWrite };
   setWrite: (w: SQLWrite) => void;
 }) {
   const [highlightedTrace, setHighlightedTrace] = useState<TraceNode>();
