@@ -1,4 +1,4 @@
-import * as React from "react";
+import { ReactNode } from "react";
 import {
   getAZStatus,
   getRegionStatus,
@@ -186,7 +186,7 @@ export function SituationView(props: {
 function withZCIndicator(
   name: string,
   zc: ZoneConfig | undefined,
-): React.ReactNode {
+): ReactNode {
   const title = zc === undefined ? "" : zcDesc(zc);
   return (
     <span title={title}>
@@ -217,7 +217,7 @@ function renderCell(
   nodePath: NodePath,
   schemaPath: SchemaPath,
   downNodeIDs: number[],
-): React.ReactNode {
+): ReactNode {
   const key = nodePathToStr(nodePath);
   const allocation = allocate(nodePath, schemaPath, downNodeIDs);
   const explanation = cellExplanation(schemaPath, nodePath, allocation);

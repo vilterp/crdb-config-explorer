@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { geoPartitionedReplicas, PATTERNS } from "./patterns";
 import { Pattern } from "./model";
 import { PatternView } from "./views/patternView";

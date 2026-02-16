@@ -1,4 +1,3 @@
-import React from "react";
 import { ProcessNode, TraceNode } from "../model";
 import classNames from "classnames";
 

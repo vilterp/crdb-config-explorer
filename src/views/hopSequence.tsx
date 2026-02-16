@@ -1,4 +1,4 @@
-import * as React from "react";
+import { ReactNode } from "react";
 import {
   Formation,
   Hop,
