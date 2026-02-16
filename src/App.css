@@ -105,6 +105,10 @@ a:hover {
   stroke: black;
 }
 
+.hop-seq .hop-line.hop-line-cross-region {
+  stroke: red;
+}
+
 .hop-seq .hop-line.hop-line-hovered {
   stroke: red;
 }
