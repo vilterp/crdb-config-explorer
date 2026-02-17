@@ -96,7 +96,7 @@ export const geoPartitionedReplicas: Pattern = {
   },
   writes: [
     {
-      desc: "Local, partitioned write (good!)",
+      desc: "",
       write: {
         gateWayNodeID: 2,
         tableName: "users",
